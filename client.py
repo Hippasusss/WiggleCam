@@ -1,14 +1,24 @@
-
-from vidgear.gears import VideoGear
-from vidgear.gears import PiGear 
 from vidgear.gears import NetGear 
+import cv2
 
-class client:
+class Client:
+
+    client = None
+
     def __init__():
-        #init
+        client = NetGear(receive_mode = True)
 
-    def receiveData():
-        # receive data
+    def runPreviewWindow():
+        while True:
+            frame = client.recv()
+            if frame is None:
+                break
+
+            cv2.imshow("output", frame)
+
+    def closePreviewWindow():
+        cv2.destroyAllWindows()
+        client.close()
 
     def sendInstruction():
         # tell a server to take a photo
@@ -19,44 +29,3 @@ class client:
     def takePhoto():
         # tell all four cameras to take a photo at the same time
 
-
-
-
-
-
-
-
-
-
-
-
-
-# shit from internet to refrence
-
-stream = VideoGear(source='test.mp4').start() #Open any video stream
-server = NetGear() #Define netgear server with default settings
-
-# infinite loop until [Ctrl+C] is pressed
-while True:
-    try: 
-        frame = stream.read()
-        # read frames
-
-        # check if frame is None
-        if frame is None:
-            #if True break the infinite loop
-            break
-
-        # do something with frame here
-
-        # send frame to server
-        server.send(frame)
-
-    except KeyboardInterrupt:
-        #break the infinite loop
-        break
-
-# safely close video stream
-stream.stop()
-# safely close server
-writer.close()
