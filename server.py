@@ -14,15 +14,15 @@ import threading
 # MAINCOMP   = "192.168.1.120"
 # CONTROLLER = "192.168.1.86"
 
-class Server:
+class videoServer:
 
     CLIENTADRESS = "192.168.1.160"
     PORT = "8000"
 
     options = None
-    server = None
-    stream = None
-    streaming = False
+    videoServer = None
+    videoStream = None
+    videoStreaming = False
 
     def __init__():
 
@@ -37,29 +37,29 @@ class Server:
                    "awb_mode": "horizon", 
                    "sensor_mode": 0}
 
-        self.server = NetGear(adress = CLIENTADRESS, port = PORT)
+        self.videoServer = NetGear(adress = CLIENTADRESS, port = PORT)
 
 
     def runPreview():
-        streaming = True
+        videoStreaming = True
 
-        self.stream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
-        print("Created Stream...")
+        self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
+        print("Created videoStream...")
 
-        while streaming:
-            frame = stream.read()
+        while videoStreaming:
+            frame = videoStream.read()
 
             if frame is None:
                 break
 
-            self.server.send(frame)
+            self.videoServer.send(frame)
 
 
     def endPreview():
-        streaming = False
-        self.stream.close()
-        self.server.close()
-        print("Closed Stream...")
+        videoStreaming = False
+        self.videoStream.close()
+        self.videoServer.close()
+        print("Closed videoStream...")
 
 
     # takes a photo and sends it back to the client 
