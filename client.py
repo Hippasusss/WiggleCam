@@ -3,12 +3,15 @@ import cv2
 
 class Client:
 
+    SERVERADRESSES = { "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4"}
+    PORT = "8000"
+
     client = None
 
-    def __init__():
-        client = NetGear(receive_mode = True)
+    def runPreviewWindow(piNumber):
+        sendInstruction("preview", piNumber)
+        client = NetGear(receive_mode = True, adress = SERVERADRESSES[piNumber], port = PORT)
 
-    def runPreviewWindow():
         while True:
             frame = client.recv()
             if frame is None:
@@ -16,16 +19,22 @@ class Client:
 
             cv2.imshow("output", frame)
 
+        closePreviewWindow()
+
     def closePreviewWindow():
         cv2.destroyAllWindows()
         client.close()
 
-    def sendInstruction():
+    # Sends an instruciton to the desired pi and waits for a response to confime recipt of message
+    def sendInstruction(instruction, piNumber):
+
+        if instruction is "preview":
+            #send the preview instruction to the pi
+
+        if instruction is "stop":
+            # stop the preview window on the pi
         # tell a server to take a photo
 
-    def startPreview(camNumber):
-        # start a preview stream with one of the server cams
-
-    def takePhoto():
-        # tell all four cameras to take a photo at the same time
+        if instruction is "photo":
+            # tell the server to stop everythin and take a photo at a set time
 

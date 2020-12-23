@@ -1,6 +1,18 @@
 from vidgear.gears import NetGear 
 from vidgear.gears import PiGear
+import threading
 
+# TODO:
+# Create seperate threads for:
+#
+#       - monitoring messages from client 
+#       - preview window monitoring 
+#       - taking and sending photos
+#
+# (maybe only need monitoring thread and just have the other two on the main thread)
+
+# MAINCOMP   = "192.168.1.120"
+# CONTROLLER = "192.168.1.86"
 
 class Server:
 
@@ -14,7 +26,10 @@ class Server:
 
     def __init__():
 
-        # add various Picamera tweak parameters to dictionary
+        threading.Thread(target=messageMonitor)
+        thread.start()
+
+
         self.options = {"hflip": True, 
                    "exposure_mode": "auto", 
                    "iso": 800, 
@@ -28,8 +43,8 @@ class Server:
     def runPreview():
         streaming = True
 
-        # open pi video stream with defined parameters
         self.stream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
+        print("Created Stream...")
 
         while streaming:
             frame = stream.read()
@@ -44,24 +59,20 @@ class Server:
         streaming = False
         self.stream.close()
         self.server.close()
+        print("Closed Stream...")
 
 
+    # takes a photo and sends it back to the client 
     def takePhoto():
-        # Take a photo
+        print("Took Photo...")
 
 
-    def sendData():
-        # send the photo that was taken to the client  
+    def messageMonitor():
+        print("Started monitoring for messages...")
+        while True:
+            # do stuff
 
-
-    def sendDataStream():
-        frame = self.stream.read()
-        self.server.send(frame)
-        # send formatted data
-        # formatting data will be the job of the camera script, this is
-        # just a generic clent server;
-
-
+        print("Stopped monitoring for messages")
 
 
 
