@@ -47,7 +47,6 @@ class Server:
         self.previewing = True
         if self.previewThread is None:
             self.videoServer = NetGear(adress = CLIENTADRESS, port = PORT)
-            self.videoStream.start();
             self.previewThread = threading.Thread(target=preview)
             self.previewThread.start()
             print ("Started preview stream")
