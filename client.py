@@ -1,16 +1,18 @@
 from vidgear.gears import NetGear 
 import cv2
 
+#CONTROLLER
+SERVERADRESSES = { "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4"}
+PORT = "8000"
+
 class Client:
 
-    SERVERADRESSES = { "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4"}
-    PORT = "8000"
 
     client = None
 
-    def runPreviewWindow(piNumber):
+    def runPreviewWindow(self, piNumber):
         sendInstruction("preview", piNumber)
-        client = NetGear(receive_mode = True, adress = SERVERADRESSES[piNumber], port = PORT)
+        self.client = NetGear(receive_mode = True, adress = SERVERADRESSES[piNumber], port = PORT)
 
         while True:
             frame = client.recv()
@@ -21,12 +23,12 @@ class Client:
 
         closePreviewWindow()
 
-    def closePreviewWindow():
+    def closePreviewWindow(self):
         cv2.destroyAllWindows()
         client.close()
 
     # Sends an instruciton to the desired pi and waits for a response to confime recipt of message
-    def sendInstruction(instruction, piNumber):
+    def sendInstruction(self, instruction, piNumber):
 
         if instruction is "preview":
             #send the preview instruction to the pi

@@ -1,6 +1,9 @@
 from vidgear.gears import NetGear 
 from vidgear.gears import PiGear
 import threading
+import time
+
+# CAMERA MODULE
 
 # TODO:
 # Create seperate threads for:
@@ -13,40 +16,57 @@ import threading
 
 # MAINCOMP   = "192.168.1.120"
 # CONTROLLER = "192.168.1.86"
+CLIENTADRESS = "192.168.1.160"
+PORT = "8000"
 
-class videoServer:
-
-    CLIENTADRESS = "192.168.1.160"
-    PORT = "8000"
-
+class Server:
     options = None
     videoServer = None
     videoStream = None
     videoStreaming = False
 
-    def __init__():
+    monitorThread = None
+    previewThread = None
 
-        threading.Thread(target=messageMonitor)
-        thread.start()
+    previewing = False
+    monitoring = False
 
-
+    def __init__(self):
         self.options = {"hflip": True, 
-                   "exposure_mode": "auto", 
-                   "iso": 800, 
-                   "exposure_compensation": 15, 
-                   "awb_mode": "horizon", 
-                   "sensor_mode": 0}
-
-        self.videoServer = NetGear(adress = CLIENTADRESS, port = PORT)
+                        "exposure_mode": "auto", 
+                        "iso": 800, 
+                        "exposure_compensation": 15, 
+                        "awb_mode": "horizon", 
+                        "sensor_mode": 0}
 
 
-    def runPreview():
-        videoStreaming = True
 
+
+    def startPreview(self):
+
+        self.previewing = True
+        if self.previewThread is None:
+            self.videoServer = NetGear(adress = CLIENTADRESS, port = PORT)
+            self.videoStream.start();
+            self.previewThread = threading.Thread(target=preview)
+            self.previewThread.start()
+            print ("Started preview stream")
+
+
+
+    def stopPreview(self):
+
+        self.previewing = False
+        if self.previewThread is not None:
+            self.previewThread.join()
+            self.videoStream.close()
+            self.videoServer.close()
+            print("Stopped preview stream")
+
+    def preview(self):
         self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
-        print("Created videoStream...")
 
-        while videoStreaming:
+        while self.previewing:
             frame = videoStream.read()
 
             if frame is None:
@@ -55,30 +75,30 @@ class videoServer:
             self.videoServer.send(frame)
 
 
-    def endPreview():
-        videoStreaming = False
-        self.videoStream.close()
-        self.videoServer.close()
-        print("Closed videoStream...")
+
+    def startMessageMonitor(self):
+
+        self.monitoring = True
+        if self.monitorThread is None:
+            self.monitorThread = threading.Thread(target=self.messageMonitor)
+            self.monitorThread.start()
+
+        print("Started monitoring for messages...")
+
+    def stopMessageMonitor(self):
+        self.monitoring = False
+        if self.monitorThread is not None:
+            self.monitorThread.join()
+            self.monitorThread = None
+
+        print("Stopped Monitoring for messages...")
+
+    def messageMonitor(self):
+        while self.monitoring:
+            time.sleep(0.5)
+            print("monitoring")
 
 
     # takes a photo and sends it back to the client 
-    def takePhoto():
+    def takePhoto(self):
         print("Took Photo...")
-
-
-    def messageMonitor():
-        print("Started monitoring for messages...")
-        while True:
-            # do stuff
-
-        print("Stopped monitoring for messages")
-
-
-
-
-
-
-
-
-
