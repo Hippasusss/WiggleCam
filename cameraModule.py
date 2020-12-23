@@ -13,13 +13,13 @@ module.stopMessageMonitor()
 
 time.sleep(1)
 
-module.startMessageMonitor()
+module.startPreview()
 
 print("main sleep")
 time.sleep(3)
 print("main up")
 
-module.stopMessageMonitor()
+module.stopPreview()
 
 
 
