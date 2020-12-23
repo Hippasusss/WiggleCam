@@ -47,7 +47,7 @@ class Server:
         self.previewing = True
         if self.previewThread is None:
             self.videoServer = NetGear(adress = CLIENTADRESS, port = PORT)
-            self.previewThread = threading.Thread(target=preview)
+            self.previewThread = threading.Thread(target=self.preview)
             self.previewThread.start()
             print ("Started preview stream")
 
@@ -58,15 +58,15 @@ class Server:
         self.previewing = False
         if self.previewThread is not None:
             self.previewThread.join()
-            self.videoStream.close()
+            self.videoStream.stop()
             self.videoServer.close()
             print("Stopped preview stream")
 
     def preview(self):
-        self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
+        self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **self.options).start()
 
         while self.previewing:
-            frame = videoStream.read()
+            frame = self.videoStream.read()
 
             if frame is None:
                 break
