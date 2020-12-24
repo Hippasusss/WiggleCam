@@ -3,7 +3,7 @@ import cv2
 
 #CONTROLLER
 SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-PORT = "8000"
+PORT = "8001"
 
 class Client:
 
@@ -28,11 +28,11 @@ class Client:
 
             cv2.imshow("output", frame)
 
-        closePreviewWindow()
+        self.closePreviewWindow()
 
     def closePreviewWindow(self):
         cv2.destroyAllWindows()
-        client.close()
+        self.client.close()
 
     # Sends an instruciton to the desired pi and waits for a response to confime recipt of message
     def sendInstruction(self, instruction, piNumber):
