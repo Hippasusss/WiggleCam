@@ -14,12 +14,11 @@ import time
 #
 # (maybe only need monitoring thread and just have the other two on the main thread)
 
-# MAINCOMP   = "192.168.1.120"
+# MAINCOMP   = "192.168.1.160"
 # CONTROLLER = "192.168.1.86"
 CLIENTADRESS = "192.168.1.160"
 PREVIEWPORT = "8000"
 
-class Server:
     options = None
     videoServer = None
     videoStream = None
@@ -55,7 +54,7 @@ class Server:
 
     def stopPreview(self):
 
-        self.previewing =
+        self.previewing = False
         if self.previewThread is not None:
             self.previewThread.join()
             self.videoStream.stop()
