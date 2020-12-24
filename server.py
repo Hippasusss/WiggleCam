@@ -14,10 +14,10 @@ import time
 #
 # (maybe only need monitoring thread and just have the other two on the main thread)
 
-# MAINCOMP   = "192.168.1.120"
+# MAINCOMP   = "192.168.1.160"
 # CONTROLLER = "192.168.1.86"
-CLIENTADRESS = "192.168.1.160"
-PORT = "8000"
+CLIENTADRESS = "192.168.1.86"
+PORT = "8001"
 
 class Server:
     options = None
