@@ -17,7 +17,7 @@ import time
 # MAINCOMP   = "192.168.1.120"
 # CONTROLLER = "192.168.1.86"
 CLIENTADRESS = "192.168.1.160"
-PORT = "8000"
+PREVIEWPORT = "8000"
 
 class Server:
     options = None
@@ -55,7 +55,7 @@ class Server:
 
     def stopPreview(self):
 
-        self.previewing = False
+        self.previewing =
         if self.previewThread is not None:
             self.previewThread.join()
             self.videoStream.stop()
@@ -101,3 +101,4 @@ class Server:
     # takes a photo and sends it back to the client 
     def takePhoto(self):
         print("Took Photo...")
+

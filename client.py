@@ -3,7 +3,7 @@ import cv2
 
 #CONTROLLER
 SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-PORT = "8001"
+PREVIEWPORT = "8000"
 
 class Client:
 
@@ -15,9 +15,9 @@ class Client:
         #sendInstruction("preview", piNumber)
 
         print("connecting to IP: {0}".format(SERVERADRESSES[piNumber]))
-        print("connecting on PORTP: {0}".format(PORT))
+        print("connecting on PORT: {0}".format(PREVIEWPORT))
 
-        self.client = NetGear(receive_mode = True, adress = SERVERADRESSES[piNumber], port = PORT)
+        self.client = NetGear(receive_mode = True, adress = SERVERADRESSES[piNumber], port = PREVIEWPORT)
 
         print("Success!")
 
