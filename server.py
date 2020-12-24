@@ -16,9 +16,10 @@ import time
 
 # MAINCOMP   = "192.168.1.160"
 # CONTROLLER = "192.168.1.86"
-CLIENTADRESS = "192.168.1.160"
-PREVIEWPORT = "8000"
+CLIENTADRESS = "192.168.1.86"
+PORT = "8001"
 
+class Server:
     options = None
     videoServer = None
     videoStream = None
@@ -54,7 +55,7 @@ PREVIEWPORT = "8000"
 
     def stopPreview(self):
 
-        self.previewing = False
+        self.previewing =
         if self.previewThread is not None:
             self.previewThread.join()
             self.videoStream.stop()
