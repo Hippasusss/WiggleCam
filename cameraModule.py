@@ -1,17 +1,19 @@
 import server
 import time
 
+# MAINCOMP   = "192.168.1.160"
+# CONTROLLER = "192.168.1.86"
+CLIENTADRESS = "192.168.1.86"
+PREVIEWPORT = "8001"
+
 module = server.Server()
 
-module.startPreview()
+module.previewWindow.startPreview(CLIENTADRESS, PREVIEWPORT)
 
-print("main sleep")
-time.sleep(20)
-print("main up")
-
-module.stopPreview()
+module.waitForTermination()
 
 
 
-print("main end")
+
+
 

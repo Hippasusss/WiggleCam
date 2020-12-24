@@ -2,6 +2,7 @@ from vidgear.gears import NetGear
 from vidgear.gears import PiGear
 import threading
 import time
+import preview
 
 # CAMERA MODULE
 
@@ -14,66 +15,13 @@ import time
 #
 # (maybe only need monitoring thread and just have the other two on the main thread)
 
-# MAINCOMP   = "192.168.1.160"
-# CONTROLLER = "192.168.1.86"
-CLIENTADRESS = "192.168.1.86"
-PORT = "8001"
 
 class Server:
-    options = None
-    videoServer = None
-    videoStream = None
-    videoStreaming = False
+
+    previewWindow = preview.Preview(receiveMode = False)
 
     monitorThread = None
-    previewThread = None
-
-    previewing = False
     monitoring = False
-
-    def __init__(self):
-        self.options = {"hflip": True, 
-                        "exposure_mode": "auto", 
-                        "iso": 800, 
-                        "exposure_compensation": 15, 
-                        "awb_mode": "horizon", 
-                        "sensor_mode": 0}
-
-
-
-
-    def startPreview(self):
-
-        self.previewing = True
-        if self.previewThread is None:
-            self.videoServer = NetGear(adress = CLIENTADRESS, port = PORT)
-            self.previewThread = threading.Thread(target=self.preview)
-            self.previewThread.start()
-            print ("Started preview stream")
-
-
-
-    def stopPreview(self):
-
-        self.previewing =
-        if self.previewThread is not None:
-            self.previewThread.join()
-            self.videoStream.stop()
-            self.videoServer.close()
-            print("Stopped preview stream")
-
-    def preview(self):
-        self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **self.options).start()
-
-        while self.previewing:
-            frame = self.videoStream.read()
-
-            if frame is None:
-                break
-
-            self.videoServer.send(frame)
-
-
 
     def startMessageMonitor(self):
 

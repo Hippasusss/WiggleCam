@@ -1,12 +1,13 @@
 import client 
 import time
 
+SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
+PREVIEWPORT = "8000"
+
 controller = client.Client()
 
-controller.startPreviewWindow(1)
+controller.previewWindow.startPreview(SERVERADRESSES[1], PREVIEWPORT)
 
-while True:
-    try:
-        time.sleep(0.2)
-    except KeyboardInterrupt:
-        controller.closePreviewWindow()
+controller.waitForTermination()
+
+

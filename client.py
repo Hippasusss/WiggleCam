@@ -1,38 +1,13 @@
 from vidgear.gears import NetGear 
+import threading
 import cv2
+import preview
 
 #CONTROLLER
-SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-PREVIEWPORT = "8000"
 
 class Client:
 
-
-    client = None
-
-    def startPreviewWindow(self, piNumber):
-        piNumber -= 1
-        #sendInstruction("preview", piNumber)
-
-        print("connecting to IP: {0}".format(SERVERADRESSES[piNumber]))
-        print("connecting on PORT: {0}".format(PREVIEWPORT))
-
-        self.client = NetGear(receive_mode = True, adress = SERVERADRESSES[piNumber], port = PREVIEWPORT)
-
-        print("Success!")
-
-        while True:
-            frame = self.client.recv()
-            if frame is None:
-                break
-
-            cv2.imshow("output", frame)
-
-        self.closePreviewWindow()
-
-    def closePreviewWindow(self):
-        cv2.destroyAllWindows()
-        self.client.close()
+    previewWindow = preview.Preview(receiveMode = True)
 
     # Sends an instruciton to the desired pi and waits for a response to confime recipt of message
     def sendInstruction(self, instruction, piNumber):
@@ -49,4 +24,5 @@ class Client:
         if instruction is "photo":
             hello=True
             # tell the server to stop everythin and take a photo at a set time
+
 
