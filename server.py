@@ -16,10 +16,9 @@ import time
 
 # MAINCOMP   = "192.168.1.160"
 # CONTROLLER = "192.168.1.86"
-CLIENTADRESS = "192.168.1.86"
-PORT = "8001"
+CLIENTADRESS = "192.168.1.160"
+PREVIEWPORT = "8000"
 
-class Server:
     options = None
     videoServer = None
     videoStream = None
@@ -101,3 +100,4 @@ class Server:
     # takes a photo and sends it back to the client 
     def takePhoto(self):
         print("Took Photo...")
+
