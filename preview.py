@@ -10,15 +10,17 @@ class Preview:
     receive = None
 
     def __init__(self, receiveMode):
-        receive = receiveMode
+        self.receive = receiveMode
 
 
     def startPreview(self, IP, PORT):
         self.isPreviewing = True
         routine = None
         if self.receive:
+            print("Receiving")
             routine = self._previewReceive
         else:
+            print("Sending")
             routine = self._previewSend
 
 
@@ -28,7 +30,6 @@ class Preview:
             self.videoServer = NetGear(receive_mode = self.receive, adress = IP,  port = PORT)
             self.previewThread = threading.Thread(target = routine)
             self.previewThread.start()
-            print("Started preview")
 
 
     def stopPreview(self):
@@ -36,13 +37,12 @@ class Preview:
         if self.previewThread is not None:
             self.videoServer.close()
             cv2.destroyAllWindows()
-            self.previewThread.join()
 
     def waitForTermination(self):
         self.previewThread.join()
 
     def _previewReceive(self):
-        print("Success!")
+        print("Started preveiew thread")
 
         while self.isPreviewing:
             frame = self.videoServer.recv()
@@ -54,6 +54,7 @@ class Preview:
         self.stopPreview()
 
     def _previewSend(self):
+        print("Started preveiew thread")
 
         options = {"hflip": True, 
                         "exposure_mode": "auto", 

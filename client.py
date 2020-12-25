@@ -6,7 +6,6 @@ import preview
 #CONTROLLER
 
 class Client:
-
     previewWindow = preview.Preview(receiveMode = True)
 
 

@@ -8,6 +8,6 @@ controller = client.Client()
 
 controller.previewWindow.startPreview(SERVERADRESSES[1], PREVIEWPORT)
 
-controller.waitForTermination()
+controller.previewWindow.waitForTermination()
 
 
