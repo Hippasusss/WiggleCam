@@ -1,21 +1,20 @@
-from vidgear.gears import NetGear 
-from vidgear.gears import PiGear 
+from vidgear.gears import NetGear
+from vidgear.gears import PiGear
 import threading
 import cv2
 
 class Preview:
-
     videoServer = None
     previewThread = None
-    preiviewing = False 
+    isPreviewing = False
     receive = None
 
-    def __init__(receiveMode):
+    def __init__(self, receiveMode):
         receive = receiveMode
 
 
     def startPreview(self, IP, PORT):
-        self.previewing = True
+        self.isPreviewing = True
         routine = None
         if self.receive:
             routine = self._previewReceive
@@ -33,19 +32,19 @@ class Preview:
 
 
     def stopPreview(self):
-        self.previewing = False
+        self.isPreviewing = False
         if self.previewThread is not None:
             self.videoServer.close()
             cv2.destroyAllWindows()
             self.previewThread.join()
 
-    def waitForTermination(self);
+    def waitForTermination(self):
         self.previewThread.join()
 
     def _previewReceive(self):
         print("Success!")
 
-        while self.previewing:
+        while self.isPreviewing:
             frame = self.videoServer.recv()
             if frame is None:
                 break
@@ -54,7 +53,7 @@ class Preview:
 
         self.stopPreview()
 
-    def _previewSend(self)
+    def _previewSend(self):
 
         options = {"hflip": True, 
                         "exposure_mode": "auto", 
@@ -65,7 +64,7 @@ class Preview:
 
         self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
 
-        while self.previewing:
+        while self.isPreviewing:
             frame = self.videoStream.read()
 
             if frame is None:
