@@ -6,7 +6,7 @@ PREVIEWPORT = "8000"
 
 controller = client.Client()
 
-controller.previewWindow.startPreview(SERVERADRESSES[1], PREVIEWPORT)
+controller.previewWindow.startPreview(SERVERADRESSES[0], PREVIEWPORT)
 
 controller.previewWindow.waitForTermination()
 

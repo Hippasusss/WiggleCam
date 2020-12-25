@@ -8,7 +8,7 @@ PREVIEWPORT = "8000"
 
 module = server.Server()
 
-module.previewWindow.startPreview(CLIENTADRESS, PREVIEWPORT)
+module.previewWindow.startPreview("127.0.0.1", PREVIEWPORT)
 
 module.previewWindow.waitForTermination()
 
