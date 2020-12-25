@@ -1,12 +1,15 @@
 import client 
 import time
 
-SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-PREVIEWPORT = "8000"
+#SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
+PREVIEWPORT = "5454"
+
+ADRESS = "172.19.181.254"
+#ADRESS = "172.19.180.254"
 
 controller = client.Client()
 
-controller.previewWindow.startPreview(SERVERADRESSES[0], PREVIEWPORT)
+controller.previewWindow.startPreview(ADRESS, PREVIEWPORT)
 
 controller.previewWindow.waitForTermination()
 
