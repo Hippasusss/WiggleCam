@@ -5,7 +5,9 @@ import time
 PREVIEWPORT = "5454"
 
 ADRESS = "172.19.181.254"
+#ADRESS = "172.19.181.1"
 #ADRESS = "172.19.180.254"
+#ADRESS = "192.168.1.86"
 
 controller = client.Client()
 
