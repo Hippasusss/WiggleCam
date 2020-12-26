@@ -27,7 +27,7 @@ class Preview:
         if self.previewThread is None:
             print("connecting to IP: {0}".format(IP))
             print("connecting on PORT: {0}".format(PORT))
-            self.videoServer = NetGear(receive_mode = self.receive, address = IP,  port = PORT, protocol = "tcp")
+            self.videoServer = NetGear(receive_mode = self.receive, adress = IP,  port = PORT, protocol = "tcp")
             self.previewThread = threading.Thread(target = routine)
             self.previewThread.start()
 
@@ -48,7 +48,6 @@ class Preview:
             frame = self.videoServer.recv()
             if frame is None:
                 break
-
             cv2.imshow("output", frame)
 
         self.stopPreview()
