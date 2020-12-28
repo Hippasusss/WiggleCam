@@ -43,6 +43,8 @@ class Preview:
 
     def _previewReceive(self):
         print("Started preveiew thread")
+        cv2.startWindowThread()
+        cv2.namedWindow("output")
 
         while self.isPreviewing:
             frame = self.videoServer.recv()
