@@ -8,12 +8,13 @@ class Preview:
     previewThread = None
     isPreviewing = False
     receive = None
+    resolution = (640, 480)
 
     def __init__(self, receiveMode):
         self.receive = receiveMode
 
 
-    def startPreview(self, IP, PORT):
+    def startPreview(self, IP, PORT, RESOLUTION = (640, 480)):
         self.isPreviewing = True
         routine = None
         if self.receive:
@@ -22,6 +23,7 @@ class Preview:
         else:
             print("Sending")
             routine = self._previewSend
+            self.resolution = RESOLUTION
 
 
         if self.previewThread is None:
@@ -62,7 +64,7 @@ class Preview:
                         "awb_mode": "horizon", 
                         "sensor_mode": 0}
 
-        self.videoStream = PiGear(resolution = (640, 480), framerate = 24, logging = True, **options).start()
+        self.videoStream = PiGear(resolution = self.resolution, framerate = 24, logging = True, **options).start()
 
         while self.isPreviewing:
             frame = self.videoStream.read()
