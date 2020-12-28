@@ -1,17 +1,35 @@
 
-class AddColour:
-        START = '\033['
-        END = '\033[m'
-        bold = '1m'
-        underline = '4m'
-        black = '30m'
-        red = '31m'
-        green = '32m'
-        yellow = '33m'
-        blue = '34m'
-        magenta = '35m'
-        cyan = '36m'
-        white = '37m'
+from enum import Enum
+
+class Colours:
+    black = '30'
+    red = '31'
+    green = '32'
+    yellow = '33'
+    blue = '34'
+    magenta = '35'
+    cyan = '36'
+    white = '37'
+    _START = '\033['
+    _END = '\033[0m'
+    _BOLD= '1'
+    _UNDERLINE= '4'
+
+def colourFormat(inputString, colour, bold = False, underline = False):
+    outputString = None
+    boldString = '' 
+    underlineString = '' 
+
+    if bold:
+        boldString = ';' + Colours._BOLD
+
+    if underline:
+        underlineString = ';' + Colours._UNDERLINE
+
+    outputString = Colours._START + colour + boldString + underlineString + 'm' + inputString + Colours._END
+    return outputString
+
+
 
 
 
