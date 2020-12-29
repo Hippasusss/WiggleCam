@@ -12,7 +12,7 @@ PREVIEWPORT = "5555"
 
 module = server.Server()
 
-module.previewWindow.startPreview(CLIENTADRESS, PREVIEWPORT)
+module.previewWindow.startPreview(CLIENTADRESS, PREVIEWPORT, RESOLUTION = (640, 480))
 
 module.previewWindow.waitForTermination()
 
