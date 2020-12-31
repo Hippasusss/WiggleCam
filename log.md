@@ -76,3 +76,11 @@ Took a couple of snaps now that I have one of the lenses focused.
 ![](WiggleIMG/6Focus.jpg)
 ![](WiggleIMG/7.jpg)
 
+
+### 31.12.2020
+--------------
+
+Made a bash script to auto isntall and setup on the remaining servers. cba
+typing all that out each time. 
+
+(also it's been snowing and I made a 7ft snowman yas)
