@@ -4,6 +4,6 @@
 
     tasks: 
         - synchronize:
-            src: ~/Develop/WiggleCam
+            src: ~/Develop/WiggleCam/src
             dest: ~/script/WiggleCam
             delete: yes
