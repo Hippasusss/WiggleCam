@@ -1,0 +1,9 @@
+-   hosts: cameras
+    sudo: yes
+    serial: 4 
+
+    tasks: 
+        - synchronize:
+            src: ~/Develop/WiggleCam
+            dest: ~/script/WiggleCam
+            delete: yes
