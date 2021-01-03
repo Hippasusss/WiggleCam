@@ -1,0 +1,45 @@
+-   hosts: cameras
+    become: true
+    serial: 4
+
+
+    pre_tasks:
+    - name: Update/Upgrade 
+      apt: 
+        update_cache: yes
+        upgrade: 'yes'
+        force_apt_get: yes
+        force: yes
+
+    - name: turn on camera
+      command: raspi-config nonint do_camera 0
+
+    tasks:
+    - name: Install opencv, pip3, and dependencies
+      apt: 
+        name: 
+            - python3-opencv
+            - python3-pip 
+            - libatlas-base-dev 
+            - libhdf5-dev 
+            - libhdf5-serial-dev 
+            - libatlas-base-dev 
+            - libjasper-dev  
+            - libqtgui4  
+            - libqt4-test 
+            - python3-setuptools
+            - python-setuptools
+            - virtualenv
+        state: present
+        update_cache: true
+
+    - name: Install vidgear, picam and opencv-python
+      pip: 
+        name:
+            - vidgear 
+            - opencv-python 
+            - picamera 
+            # - opencv-contrib-python
+        executable: pip3
+      become: true
+
