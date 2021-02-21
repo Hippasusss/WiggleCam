@@ -112,3 +112,16 @@ client/server to work with more than one camera.
 Then will have to set up some sort of messaging system so as the main Pi can tell the 
 wee pis when to take a photo/when to start previewing. 
 
+
+### 21.02.2021 2
+--------------
+
+The camera is wiggling. Wiggliest camnera i've ever seen in my life. 
+
+I accidently fed all of the cameras' data down the same network port. It's made a glitchy and
+inconsistent wiggling effect. so it's an accidental bodge, but I'll take it!
+
+I am fucking flying. 
+
+Fish eye wiggle cams are the future of photogrophy; people will cast their wretched monoscopic
+cameras into the sea once they have a look at this beauty!
