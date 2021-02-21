@@ -1,19 +1,15 @@
-
 import time
 
 class Timer:
+    startTime = 0
+    resetTime = 0
 
-    startTime
-    resetTime;
-
-    def startTimer(self, resetTime):
+    def start(self, resetTime):
         self.startTime = time.time()
-        self.startTime = resetTime
+        self.resetTime = resetTime
 
-    def checkTimer(self, autoReset):
+    def check(self):
         currentTime = time.time()
         reset = (currentTime - self.startTime) > self.resetTime
-        if(reset) self.startTime = currentTime
-
         return reset
 

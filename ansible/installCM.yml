@@ -39,6 +39,7 @@
             - vidgear 
             - opencv-python 
             - picamera 
+            - imutils
             # - opencv-contrib-python
         executable: pip3
       become: true

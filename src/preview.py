@@ -1,6 +1,7 @@
 from vidgear.gears import NetGear
 from vidgear.gears import PiGear
 
+import timer
 import threading
 
 import cv2
@@ -53,25 +54,44 @@ class Preview:
 
     def _previewReceive(self):
         print("Started preveiew thread")
-        cv2.startWindowThread()
-        cv2.namedWindow("output")
 
         PORTLOW = 5555
-        frameArray = [] 
+        cv2.startWindowThread()
+        cv2.namedWindow("WiggleCam")
+
+        TIMERGAP = 0.1
+        changeTimer = timer.Timer()
+        changeTimer.start(TIMERGAP)
+
+        frameArray = [None] * 4
+        currentIndex = 0
+        modifier = 1
 
 
         while self.isPreviewing:
             data = self.videoServer.recv()
-            unique_address, frame = data
-
-            if frame is None:
+            if data is None:
                 break
 
-            (h, w) = frame.shape[:2]
+            senderPort, frame = data
+            writeFrameIndex = int(senderPort) - PORTLOW
+            frameArray[writeFrameIndex] = frame
+            
+            if(changeTimer.check()):
+                currentIndex+=modifier
+                if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
+                    modifier = -modifier
 
-            frameArray[unique_address - PORTLOW] = frame
+                while(frameArray[currentIndex] is None):
+                    currentIndex+=modifier
+                    if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
+                        modifier = -modifier
 
-            cv2.imshow("output", frame)
+                changeTimer.start(TIMERGAP)
+
+            frame = frameArray[currentIndex]
+            if(frame is not None): 
+                cv2.imshow("WiggleCam", frame)
 
         self.stopPreview()
 
