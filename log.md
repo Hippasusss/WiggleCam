@@ -66,8 +66,9 @@ Adress.
 look at it. 
 Disgusting. 
 
-Anyways, now that I've passed the named parameter **"address"** to netGear 
+Anyways, now that I've passed the named parameter "address" to netGear 
 it just works. Boxing day miracle. 
+
 
 
 ### 28.12.2020
@@ -125,3 +126,10 @@ I am fucking flying.
 
 Fish eye wiggle cams are the future of photogrophy; people will cast their wretched monoscopic
 cameras into the sea once they have a look at this beauty!
+
+
+### 21.02.2021 3
+--------------
+
+Wiggle preview is now implemented properly. now on to taking photos.
+
