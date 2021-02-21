@@ -84,3 +84,17 @@ Made a bash script to auto isntall and setup on the remaining servers. cba
 typing all that out each time. 
 
 (also it's been snowing and I made a 7ft snowman yas)
+
+### 21.02.2020
+--------------
+
+I fucked off for a wee while to make a stupid mobile game and roast loads of money
+off of a hedge fund. Success allround. 🚀🚀🚀
+
+Just reaquainted myself with past-me's code. Everything was working for one camera.
+
+I have four cameras though. so I've piged that in the bin and started converting the
+client/server to work with more than one camera.
+
+Then will have to set up some sort of messaging system so as the main Pi can tell the 
+wee pis when to take a photo/when to start previewing. 
