@@ -60,7 +60,11 @@ shennanigins. :'(
 Realised that I'm a moron and that the reasong the client/server have
 been unable to connect is because i've been spelling the word "address"
 wrong. 26 years of exsistence and i've just discovered it has two fucking
-d's in it. It even looks wrong with one d. Adress. look at it. Disgusting. 
+d's in it. It even looks wrong with one d. 
+
+Adress. 
+look at it. 
+Disgusting. 
 
 Anyways, now that I've passed the named parameter **"address"** to netGear 
 it just works. Boxing day miracle. 
@@ -85,7 +89,16 @@ typing all that out each time.
 
 (also it's been snowing and I made a 7ft snowman yas)
 
-### 21.02.2020
+### 02.01.2021
+--------------
+
+Happy new year you filthy animal. 
+
+I've binned the auto installing bash script and have started
+using ansible instead. Ansible rips.
+
+
+### 21.02.2021
 --------------
 
 I fucked off for a wee while to make a stupid mobile game and roast loads of money
@@ -93,8 +106,9 @@ off of a hedge fund. Success allround. 🚀🚀🚀
 
 Just reaquainted myself with past-me's code. Everything was working for one camera.
 
-I have four cameras though. so I've piged that in the bin and started converting the
+I have four cameras though. so I've pinged that in the bin and started converting the
 client/server to work with more than one camera.
 
 Then will have to set up some sort of messaging system so as the main Pi can tell the 
 wee pis when to take a photo/when to start previewing. 
+
