@@ -1,6 +1,8 @@
 from vidgear.gears import NetGear
 from vidgear.gears import PiGear
+
 import threading
+
 import cv2
 from imutils import build_montages
 
@@ -34,7 +36,7 @@ class Preview:
         if self.previewThread is None:
             print("connecting to IP: {0}".format(IP))
             print("connecting on PORTS: {0}".format(PORTS))
-            self.videoServer = NetGear(receive_mode = True, pattern = 1, address = IP,  port = PORTS, protocol = "tcp", **options)
+            self.videoServer = NetGear(receive_mode = self.receive, pattern = 1, address = IP,  port = PORTS, protocol = "tcp", **options)
 
             self.previewThread = threading.Thread(target = routine)
             self.previewThread.start()
@@ -53,7 +55,10 @@ class Preview:
         print("Started preveiew thread")
         cv2.startWindowThread()
         cv2.namedWindow("output")
-        frameDict = {}
+
+        PORTLOW = 5555
+        frameArray = [] 
+
 
         while self.isPreviewing:
             data = self.videoServer.recv()
@@ -64,17 +69,9 @@ class Preview:
 
             (h, w) = frame.shape[:2]
 
-            # update the extracted frame in the received frame dictionary
-            frameDict[unique_address] = frame
+            frameArray[unique_address - PORTLOW] = frame
 
-            # build a montage using data dictionary
-            montages = build_montages(frameDict.values(), (w, h), (2, 1))
-
-            # display the montage(s) on the screen
-            for (i, montage) in enumerate(montages):
-
-                cv2.imshow("Montage Footage {}".format(i), montage)
-                cv2.imshow("output", frame)
+            cv2.imshow("output", frame)
 
         self.stopPreview()
 
@@ -87,7 +84,7 @@ class Preview:
                    "exposure_compensation": 15, 
                    "awb_mode": "horizon", 
                    "sensor_mode": 0,
-                   "multiserver_mode": True}
+                   }
 
         self.videoStream = PiGear(resolution = self.resolution, framerate = 24, logging = True, **options).start()
 
