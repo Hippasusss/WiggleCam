@@ -10,13 +10,15 @@ from imutils import build_montages
 class Preview:
     videoServer = None
     previewThread = None
+
     isPreviewing = False
-    receive = None
+    receiveMode = None
+
     resolution = (640, 480)
 
 
     def __init__(self, receiveMode):
-        self.receive = receiveMode
+        self.receiveMode = receiveMode
 
 
     def startPreview(self, IP, PORTS, RESOLUTION = (640, 480)):
@@ -25,7 +27,7 @@ class Preview:
 
         self.isPreviewing = True
         routine = None
-        if self.receive:
+        if self.receiveMode:
             print("Receiving")
             routine = self._previewReceive
         else:
@@ -37,7 +39,7 @@ class Preview:
         if self.previewThread is None:
             print("connecting to IP: {0}".format(IP))
             print("connecting on PORTS: {0}".format(PORTS))
-            self.videoServer = NetGear(receive_mode = self.receive, pattern = 1, address = IP,  port = PORTS, protocol = "tcp", **options)
+            self.videoServer = NetGear(receive_mode = self.receiveMode, pattern = 1, address = IP,  port = PORTS, protocol = "tcp", **options)
 
             self.previewThread = threading.Thread(target = routine)
             self.previewThread.start()
@@ -78,14 +80,12 @@ class Preview:
             frameArray[writeFrameIndex] = frame
             
             if(changeTimer.check()):
-                currentIndex+=modifier
-                if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
-                    modifier = -modifier
-
-                while(frameArray[currentIndex] is None):
+                while(True):
                     currentIndex+=modifier
                     if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
                         modifier = -modifier
+                    if(frameArray[currentIndex] is not None):
+                        break
 
                 changeTimer.start(TIMERGAP)
 

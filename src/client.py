@@ -1,17 +1,18 @@
 from vidgear.gears import NetGear 
-from getkey import getkey, keys
-import threading
 import cv2
 import preview
+import inputController
 
 #CONTROLLER
 
+# client side controller of everything 
 class Client:
 
     PORT = None
     ADDRESS = None
 
     previewWindow = preview.Preview(receiveMode = True)
+    inputControl = inputController.Input()
 
     running = True
 
@@ -25,8 +26,7 @@ class Client:
     def endClient():
         running = False
         
-class Input:
-    def __init__():
-        
+
+
 
 
