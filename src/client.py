@@ -19,6 +19,7 @@ class Client:
     def __init__(ADDRESS, PORT):
         self.ADDRESS = ADRESS
         self.PORT = PORT
+        inputControl.startChecking()
 
     def startClient():
         while(running):

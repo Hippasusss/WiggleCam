@@ -1,5 +1,6 @@
 from getkey import getkey, keys
 import threading
+import time
 
 # reveive input from camera and send to other threads to perform tasks
 class Input:
@@ -7,13 +8,10 @@ class Input:
     inputThread = None
     keyInput = None
 
-    photoEvent = threading.Event()
-    previewEvent = threading.Event()
-    exitEvent = threading.Event()
+    events = []
 
     def __init__(self):
         self.keyInput = getkey()
-        self.startChecking()
 
     def startChecking(self):
         if (self.inputThread is None):
@@ -22,25 +20,21 @@ class Input:
         
 
     def _checkInput(self):
-
-        eventDict = { 
-            keys.A : photoEvent, 
-            keys.P : previewEvent, 
-            keys.Q : exitEvent
-        }
-
         while (True):
-            inputThread.sleep(0.1)
-            eventDict[self.keyInput].set()
+            time.sleep(0.1)
+            for event in events:
+                if(event.key == keyInput):
+                    event.event.set()
 
-            # # take a photo
-            # if (self.keyInput == keys.A):
-            #     continue
 
-            # # start preview 
-            # if (self.keyInput == keys.P):
-            #     continue
+    def addEvent(keyCode):
+        events.add(KeyEvent(keycode))
 
-            # # quit
-            # if (self.keyInput == keys.Q):
-            #     continue
+class KeyEvent:
+    event = threading.Event()
+    key = None
+
+    def __init__(self, keyCode):
+        self.key = keyCode
+        self.name = name
+

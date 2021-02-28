@@ -4,9 +4,9 @@ class Timer:
     startTime = 0
     resetTime = 0
 
-    def start(self, resetTime):
+    def reset(self, timerGap):
         self.startTime = time.time()
-        self.resetTime = resetTime
+        self.resetTime = timerGap
 
     def check(self):
         currentTime = time.time()

@@ -2,102 +2,76 @@ from vidgear.gears import NetGear
 from vidgear.gears import PiGear
 
 import timer
-import threading
+from inputController import KeyEvent
 
 import cv2
-from imutils import build_montages
 
 class Preview:
+    previewEvent
     videoServer = None
-    previewThread = None
-
     isPreviewing = False
     receiveMode = None
-
     resolution = (640, 480)
 
 
-    def __init__(self, receiveMode):
+    def __init__(self, receiveMode, event):
         self.receiveMode = receiveMode
+        self.previewEvent = event
 
 
     def startPreview(self, IP, PORTS, RESOLUTION = (640, 480)):
-        
-        options = {"multiserver_mode": True}
-
+        self.resolution = RESOLUTION
         self.isPreviewing = True
-        routine = None
-        if self.receiveMode:
-            print("Receiving")
-            routine = self._previewReceive
-        else:
-            print("Sending")
-            routine = self._previewSend
-            self.resolution = RESOLUTION
+        options = {"multiserver_mode": True}
+        routine = self._previewReceive if self.receiveMode else self._previewSend 
+        self.videoServer = NetGear(receive_mode = self.receiveMode, 
+                                   pattern = 1, 
+                                   address = IP,  
+                                   port = PORTS, 
+                                   protocol = "tcp", 
+                                   **options)
 
-
-        if self.previewThread is None:
-            print("connecting to IP: {0}".format(IP))
-            print("connecting on PORTS: {0}".format(PORTS))
-            self.videoServer = NetGear(receive_mode = self.receiveMode, pattern = 1, address = IP,  port = PORTS, protocol = "tcp", **options)
-
-            self.previewThread = threading.Thread(target = routine)
-            self.previewThread.start()
-
+        routine()
 
     def stopPreview(self):
         self.isPreviewing = False
-        if self.previewThread is not None:
-            self.videoServer.close()
-            cv2.destroyAllWindows()
-
-    def waitForTermination(self):
-        self.previewThread.join()
+        self.videoServer.close()
+        cv2.destroyAllWindows()
 
     def _previewReceive(self):
-        print("Started preveiew thread")
-
         PORTLOW = 5555
         cv2.startWindowThread()
         cv2.namedWindow("WiggleCam")
 
-        TIMERGAP = 0.1
+        timerGap = 0.1
         changeTimer = timer.Timer()
-        changeTimer.start(TIMERGAP)
+        changeTimer.reset(timerGap)
 
         frameArray = [None] * 4
         currentIndex = 0
         modifier = 1
 
-
-        while self.isPreviewing:
+        while previewEvent.is_set():
             data = self.videoServer.recv()
             if data is None:
                 break
-
             senderPort, frame = data
             writeFrameIndex = int(senderPort) - PORTLOW
             frameArray[writeFrameIndex] = frame
-            
-            if(changeTimer.check()):
-                while(True):
+            if changeTimer.check():
+                while True:
                     currentIndex+=modifier
                     if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
                         modifier = -modifier
-                    if(frameArray[currentIndex] is not None):
+                    if frameArray[currentIndex] is not None:
                         break
-
-                changeTimer.start(TIMERGAP)
-
+                changeTimer.reset(timerGap)
             frame = frameArray[currentIndex]
-            if(frame is not None): 
+            if frame is not None:
                 cv2.imshow("WiggleCam", frame)
 
-        self.stopPreview()
 
     def _previewSend(self):
-        print("Started preveiew thread")
-
         options = {"hflip": True,
                    "exposure_mode": "auto", 
                    "iso": 800, 
@@ -108,15 +82,11 @@ class Preview:
 
         self.videoStream = PiGear(resolution = self.resolution, framerate = 24, logging = True, **options).start()
 
-        while self.isPreviewing:
+        while previewEvent.is_set():
             frame = self.videoStream.read()
-
-            if frame is None:
-                break
-
-            self.videoServer.send(frame)
+            if frame is not None:
+                self.videoServer.send(frame)
 
         self.videoStream.stop()
-        self.stopPreview()
 
 
