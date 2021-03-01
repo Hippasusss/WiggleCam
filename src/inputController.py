@@ -6,35 +6,57 @@ import time
 class Input:
 
     inputThread = None
-    keyInput = None
-
     events = []
 
-    def __init__(self):
-        self.keyInput = getkey()
 
     def startChecking(self):
         if (self.inputThread is None):
-            self.inputThread = threading.Thread(target = self.checkInput, daemon = True)
+            self.inputThread = threading.Thread(target = self._checkInput, daemon = True)
             self.inputThread.start()
-        
 
     def _checkInput(self):
+        waitingEvent = None
         while (True):
             time.sleep(0.1)
-            for event in events:
-                if(event.key == keyInput):
-                    event.event.set()
+            keyInput = getkey() 
+            for event in self.events:
+                if(event.key == keyInput and waitingEvent is None):
+                    event.set()
+                    waitingEvent = event
+                elif event.key == waitingEvent:
+                    event.clear()
+                    waitingEvent = None
 
-
-    def addEvent(keyCode):
-        events.add(KeyEvent(keycode))
+    def addEvent(self, keyEvent):
+        self.events.append(keyEvent)
 
 class KeyEvent:
     event = threading.Event()
     key = None
+    isToggle = False
 
-    def __init__(self, keyCode):
+
+    def __init__(self, keyCode, isToggle = False):
         self.key = keyCode
-        self.name = name
+
+    def set(self):
+        if self.isToggle:
+            self.toggle()
+            return
+
+        if not self.event.is_set():
+            self.event.set()
+
+    def clear(self):
+        if self.event.is_set():
+            self.event.clear()
+
+    def toggle(self):
+        if not self.event.is_set():
+            self.event.set()
+        elif self.event.is_set():
+            self.event.clear()
+
+    def is_set(self):
+        return self.event.is_set()
 

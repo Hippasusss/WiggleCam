@@ -7,9 +7,8 @@ from inputController import KeyEvent
 import cv2
 
 class Preview:
-    previewEvent
+    previewEvent = None
     videoServer = None
-    isPreviewing = False
     receiveMode = None
     resolution = (640, 480)
 
@@ -21,7 +20,6 @@ class Preview:
 
     def startPreview(self, IP, PORTS, RESOLUTION = (640, 480)):
         self.resolution = RESOLUTION
-        self.isPreviewing = True
         options = {"multiserver_mode": True}
         routine = self._previewReceive if self.receiveMode else self._previewSend 
         self.videoServer = NetGear(receive_mode = self.receiveMode, 
@@ -35,7 +33,8 @@ class Preview:
 
     def stopPreview(self):
         self.isPreviewing = False
-        self.videoServer.close()
+        if self.videoServer is not None: 
+            self.videoServer.close()
         cv2.destroyAllWindows()
 
     def _previewReceive(self):
@@ -51,7 +50,7 @@ class Preview:
         currentIndex = 0
         modifier = 1
 
-        while previewEvent.is_set():
+        while self.previewEvent.is_set():
             data = self.videoServer.recv()
             if data is None:
                 break
@@ -70,6 +69,8 @@ class Preview:
             if frame is not None:
                 cv2.imshow("WiggleCam", frame)
 
+        self.videoServer.close()
+        cv2.destroyAllWindows()
 
     def _previewSend(self):
         options = {"hflip": True,
@@ -82,7 +83,7 @@ class Preview:
 
         self.videoStream = PiGear(resolution = self.resolution, framerate = 24, logging = True, **options).start()
 
-        while previewEvent.is_set():
+        while self.previewEvent.is_set():
             frame = self.videoStream.read()
             if frame is not None:
                 self.videoServer.send(frame)

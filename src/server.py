@@ -1,7 +1,4 @@
-from vidgear.gears import NetGear 
-from vidgear.gears import PiGear
 import threading
-import time
 import preview
 
 # CAMERA MODULE
@@ -18,6 +15,26 @@ import preview
 
 class Server:
 
-    previewWindow = preview.Preview(receiveMode = False)
+    PORT = None
+    ADDRESS = None
 
+    previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
+    workerThread = threading.thread(target = _worker, daemon = True)
 
+    previewEvent = inputController.KeyEvent()
+    photoEvent = inputController.KeyEvent()
+
+    def __init__(self, ADDRESS, PORT):
+        self.ADDRESS = ADRESS
+        self.PORT = PORT
+        inputControl.startChecking()
+
+    def startClient(self):
+        workerThread.start()
+
+    def _worker(self):
+        while True:
+            if previewEvent.is_set():
+                previewWindow.startPreview(ADDRESS, PORT)
+            else:
+                previewWindow.stopPreview()
