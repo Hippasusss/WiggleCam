@@ -21,6 +21,7 @@ class Input:
             keyInput = getkey() 
             for event in self.events:
                 if(event.key == keyInput and waitingEvent is None):
+                    print(event)
                     event.set()
                     waitingEvent = event
                 elif event.key == waitingEvent:

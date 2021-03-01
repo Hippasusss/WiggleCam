@@ -9,11 +9,11 @@ ADDRESS = "172.19.181.254"
 PREVIEWPORTS = ("5555", "5556", "5557", "5558")
 
 clientR = client.Client(ADDRESS, PREVIEWPORTS)
-clientR.start()
 
 while True:
     try:
         time.sleep(0.1)
     except KeyboardInterrupt:
+        print("interrupted")
         break
 
