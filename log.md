@@ -133,3 +133,9 @@ cameras into the sea once they have a look at this beauty!
 
 Wiggle preview is now implemented properly. now on to taking photos.
 
+
+### 01.03.2021 
+--------------
+
+spent the last few days ripping all the threading bits apart and reorganising them. Have things 
+organised a bit more than they were. still no wiggling photos to show.
