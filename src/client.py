@@ -4,6 +4,7 @@ from enum import Enum
 
 import cv2
 import threading
+import time
 
 import preview
 import inputController
@@ -11,23 +12,17 @@ import inputController
 #CONTROLLER
 
 # client side controller of everything 
-class State(Enum):
-    idle = 0
-    preview = 1
-    photo = 2
-
 class Client:
 
     PORT = None
     ADDRESS = None
 
-    state = State.idle
     inputControl = inputController.Input()
 
     # INPUT EVENTS
     previewEvent = inputController.KeyEvent('a', isToggle = True)
-    photoEvent = inputController.KeyEvent('p')
-    reviewEvent = inputController.KeyEvent('r', isToggle = True)
+    reviewEvent  = inputController.KeyEvent('r', isToggle = True)
+    photoEvent   = inputController.KeyEvent('p')
 
     previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
 
@@ -42,23 +37,34 @@ class Client:
         self.inputControl.startChecking()
 
     def _worker(self):
+        print("starting worker thread")
         while True:
-            if (self.previewEvent.is_set() and self.state is State.idle):
+            if (self.previewEvent.is_set()):
+                self.previewEvent.print()
+                self.reviewEvent.print()
+                self.photoEvent.print()
                 print("previewing")
-                self.state = State.preview
                 self.previewWindow.startPreview(self.ADDRESS, self.PORT)
                 # tell minis to start sending video
                 print("stopping preview")
-                self.state = State.idle
                 self.previewWindow.stopPreview()
+                self.inputControl.clearAllEvents()
 
-            if (self.photoEvent.is_set() and self.state is State.idle):
+            if (self.photoEvent.is_set()):
+                self.photoEvent.print()
                 print("taking photo")
-                self.state = State.photo
                 # tell minis to take a photo
-                print("finished photo")
-                self.state = State.idle
+                self.inputControl.clearAllEvents()
 
-            if (self.reviewEvent.is_set() and self.state is State.idle):
+            if (self.reviewEvent.is_set()):
+                self.reviewEvent.print()
                 print("looking at photos")
+                while(self.reviewEvent.is_set()):
+                    continue
+                # display gifs that have been taken
+                print("finished looking at photos")
+                self.inputControl.clearAllEvents()
+
+            time.sleep(0.3)
+            print("worker idle...")
 
