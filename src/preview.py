@@ -12,11 +12,9 @@ class Preview:
     receiveMode = None
     resolution = (640, 480)
 
-
     def __init__(self, receiveMode, event):
         self.receiveMode = receiveMode
         self.previewEvent = event
-
 
     def startPreview(self, IP, PORTS, RESOLUTION = (640, 480)):
         self.resolution = RESOLUTION

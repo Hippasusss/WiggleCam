@@ -4,6 +4,7 @@ import time
 
 # reveive input from camera and send to other threads to perform tasks
 class Input:
+
     events = []
 
     def startChecking(self):
@@ -14,13 +15,13 @@ class Input:
         print("starting input thread")
         waitingEvent = None
         while (True):
-            keyInput = getkey() 
+            Input = getkey() 
             print("input =============================================")
-            print("keyInput: {0}".format(keyInput))
+            print("keyInput: {0}".format(Input))
             for event in self.events: 
-                if event.key == keyInput:
+                if event.check(Input);
                     if waitingEvent is None:
-                        print("setting: {0} from input {1}".format(event.key, keyInput))
+                        print("setting: {0} from input {1}".format(event.key, Input))
                         event.set()
                         if event.isToggle: 
                             print("Toggle On")
@@ -32,6 +33,7 @@ class Input:
                     else:
                         print("blocked. waiting for {0}".format(waitingEvent.key))
             print("input =============================================")
+
 
     def addEvent(self, keyEvent):
         self.events.append(keyEvent)
@@ -68,6 +70,9 @@ class KeyEvent:
 
     def is_set(self):
         return self.event.is_set()
+
+    def eventCheck(self, check)
+        return self.key == check.key
 
     def print(self):
         print("{0}: {1}".format(self.key, self.is_set()))

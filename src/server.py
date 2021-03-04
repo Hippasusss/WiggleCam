@@ -18,23 +18,21 @@ class Server:
     PORT = None
     ADDRESS = None
 
-    previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
-    workerThread = threading.thread(target = _worker, daemon = True)
+    # INPUT EVENTS
+    previewEvent = inputController.KeyEvent('a', isToggle = True)
+    photoEvent   = inputController.KeyEvent('p')
 
-    previewEvent = inputController.KeyEvent()
-    photoEvent = inputController.KeyEvent()
+    previewWindow = preview.Preview(receiveMode = False, event = previewEvent)
 
     def __init__(self, ADDRESS, PORT):
-        self.ADDRESS = ADRESS
+        self.ADDRESS = ADDRESS
         self.PORT = PORT
-        inputControl.startChecking()
 
-    def startClient(self):
+        workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
 
     def _worker(self):
+        print("starting worker thread")
         while True:
-            if previewEvent.is_set():
-                previewWindow.startPreview(ADDRESS, PORT)
-            else:
-                previewWindow.stopPreview()
+            time.sleep(0.3)
+            print("worker idle...")

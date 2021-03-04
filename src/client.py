@@ -5,6 +5,8 @@ from enum import Enum
 import cv2
 import threading
 import time
+import subprocess
+import sys 
 
 import preview
 import inputController
@@ -16,10 +18,10 @@ class Client:
 
     PORT = None
     ADDRESS = None
+    SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
 
     inputControl = inputController.Input()
 
-    # INPUT EVENTS
     previewEvent = inputController.KeyEvent('a', isToggle = True)
     reviewEvent  = inputController.KeyEvent('r', isToggle = True)
     photoEvent   = inputController.KeyEvent('p')
@@ -27,14 +29,21 @@ class Client:
     previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
 
     def __init__(self, ADDRESS, PORT):
-        workerThread = threading.Thread(target = self._worker, daemon = True)
-        workerThread.start()
         self.ADDRESS = ADDRESS
         self.PORT = PORT
+
+        #Start worker thread running
+        workerThread = threading.Thread(target = self._worker, daemon = True)
+        workerThread.start()
+
+        # Register input events and start input thread running
         self.inputControl.addEvent(self.previewEvent)
         self.inputControl.addEvent(self.photoEvent)
         self.inputControl.addEvent(self.reviewEvent)
         self.inputControl.startChecking()
+
+        # Start the scripts running on the PI zerosj
+        self.startServers()
 
     def _worker(self):
         print("starting worker thread")
@@ -68,3 +77,15 @@ class Client:
             time.sleep(0.3)
             print("worker idle...")
 
+    def startServers(self):
+        command = "python3 ~/script/WiggleCam/src/cameraModule.py"
+        self.sendCommandToAllServers(command)
+
+    def closeServers(self):
+        command = "close all the servers please"
+        self.sendCommandToAllServers(command)
+        
+    def sendCommandToAllServers(self, command):
+        for address in self.SERVERADDRESSES:
+            ssh = subprocess.run(["ssh", address, command])
+        
