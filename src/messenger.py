@@ -3,8 +3,6 @@ import time
 import socket
 
 class Messenger:
-    sock = None
-    isSender = False
 
     def __init__(self, address, ports, isSender):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

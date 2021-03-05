@@ -8,6 +8,7 @@ import time
 import subprocess
 import sys 
 
+import meesenger
 import preview
 import inputController
 
@@ -15,22 +16,19 @@ import inputController
 
 # client side controller of everything 
 class Client:
-
-    PORT = None
-    ADDRESS = None
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-
-    inputControl = inputController.Input()
-
-    previewEvent = inputController.KeyEvent('a', isToggle = True)
-    reviewEvent  = inputController.KeyEvent('r', isToggle = True)
-    photoEvent   = inputController.KeyEvent('p')
-
-    previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
 
     def __init__(self, ADDRESS, PORT):
         self.ADDRESS = ADDRESS
         self.PORT = PORT
+        self.messageController = messenger.Messenger()
+        self.inputControl = inputController.Input()
+
+        self.previewEvent = inputController.KeyEvent('a', isToggle = True)
+        self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
+        self.photoEvent   = inputController.KeyEvent('p')
+
+        self.previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
 
         #Start worker thread running
         workerThread = threading.Thread(target = self._worker, daemon = True)
