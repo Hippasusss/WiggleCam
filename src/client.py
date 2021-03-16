@@ -40,7 +40,7 @@ class Client:
         self.inputControl.addEvent(self.reviewEvent)
         self.inputControl.startChecking()
 
-        # Start the scripts running on the PI zerosj
+        # Start the scripts running on the PI zeros
         self.startServers()
 
     def _worker(self):
@@ -48,8 +48,6 @@ class Client:
         while True:
             if (self.previewEvent.is_set()):
                 self.previewEvent.print()
-                self.reviewEvent.print()
-                self.photoEvent.print()
                 print("previewing")
                 self.previewWindow.startPreview(self.ADDRESS, self.PORT)
                 # tell minis to start sending video
@@ -72,8 +70,33 @@ class Client:
                 print("finished looking at photos")
                 self.inputControl.clearAllEvents()
 
+            sock.sendall(bytes("photo", "utf-8"))
             time.sleep(0.3)
             print("worker idle...")
+
+    def requestPhotos(self):
+        i = 0
+        for port in self.PORT:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock
+                sock.connect(self.ADDRESS, port)
+                sock.sendall(bytes("photo", "utf-8"))
+
+
+                filename, filesize = sock.recv(1024).decode().split(":")
+                filename = os.path.basename(filename)
+                filesize = int(filesize)
+
+                with open(filename, "wb") as f:
+                    while True:
+                        block = sock.recv(1024)
+                        if not block:
+                            break
+                        f.write(block)
+
+                sock.close()
+                i += 1
+
+
 
     def startServers(self):
         command = "python3 ~/script/WiggleCam/src/cameraModule.py"

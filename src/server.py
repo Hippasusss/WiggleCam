@@ -1,6 +1,8 @@
 import threading
-import preview
+import socketserver
+import os
 
+import preview
 import photo
 
 class Server:
@@ -11,6 +13,7 @@ class Server:
         self.PORT = PORT
         self.previewEvent = inputController.KeyEvent('a', isToggle = True)
         self.photoEvent   = inputController.KeyEvent('p')
+        self.photo = photo.Photo()
 
         self.previewWindow = preview.Preview(receiveMode = False, event = previewEvent)
 
@@ -19,6 +22,33 @@ class Server:
 
     def _worker(self):
         print("starting worker thread")
-        while True:
-            time.sleep(0.3)
-            print("worker idle...")
+        with socketserver.TCPServer((self.ADDRESS, self.PORT) PhotoEventHandler) as server:
+            server.serve_forever()
+
+class PhotoEventHandler(socketserver.BaseRequestHandler):
+    def handle(self):
+        # Get data
+        # self.data = self.request.recv(1024).strip()
+
+        # Take Photo and format data
+        request = self.request.recv(1024).strip()
+
+        if request is "photo":
+            photoPath = self.photo.takePhoto()
+            photoSize = os.path.getsize(photoPath)
+
+            # get name and size
+            self.reqest.send(f"{photoPath}:{photoSize}".encode())
+
+            with open(filename, "rb") as f:
+                while True:
+                    block = f.read(1024)
+                    if not block:
+                        break
+                    self.request.sendall(block)
+
+            
+            
+        
+
+
