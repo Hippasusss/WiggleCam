@@ -8,7 +8,6 @@ import time
 import subprocess
 import sys 
 
-import meesenger
 import preview
 import inputController
 
@@ -21,14 +20,13 @@ class Client:
     def __init__(self, ADDRESS, PORT):
         self.ADDRESS = ADDRESS
         self.PORT = PORT
-        self.messageController = messenger.Messenger()
         self.inputControl = inputController.Input()
 
         self.previewEvent = inputController.KeyEvent('a', isToggle = True)
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
         self.photoEvent   = inputController.KeyEvent('p')
 
-        self.previewWindow = preview.Preview(receiveMode = True, event = previewEvent)
+        self.previewWindow = preview.Preview(receiveMode = True, event = self.previewEvent)
 
         #Start worker thread running
         workerThread = threading.Thread(target = self._worker, daemon = True)
@@ -58,6 +56,7 @@ class Client:
             if (self.photoEvent.is_set()):
                 self.photoEvent.print()
                 print("taking photo")
+                self.requestPhotos()
                 # tell minis to take a photo
                 self.inputControl.clearAllEvents()
 
@@ -70,23 +69,24 @@ class Client:
                 print("finished looking at photos")
                 self.inputControl.clearAllEvents()
 
-            sock.sendall(bytes("photo", "utf-8"))
             time.sleep(0.3)
             print("worker idle...")
 
     def requestPhotos(self):
-        i = 0
         for port in self.PORT:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                print("connecting to port: " + port)
                 sock.connect(self.ADDRESS, port)
+                print("sending request...")
                 sock.sendall(bytes("photo", "utf-8"))
 
 
                 filename, filesize = sock.recv(1024).decode().split(":")
+                print(f"Reveiving:{filename} {filesize}")
                 filename = os.path.basename(filename)
                 filesize = int(filesize)
 
-                with open(filename, "wb") as f:
+                with open(filename + str(port), "wb") as f:
                     while True:
                         block = sock.recv(1024)
                         if not block:
@@ -94,7 +94,6 @@ class Client:
                         f.write(block)
 
                 sock.close()
-                i += 1
 
 
 

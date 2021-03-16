@@ -19,7 +19,7 @@ class Input:
             print("input =============================================")
             print("keyInput: {0}".format(Input))
             for event in self.events: 
-                if event.check(Input);
+                if event.check(Input):
                     if waitingEvent is None:
                         print("setting: {0} from input {1}".format(event.key, Input))
                         event.set()
@@ -71,7 +71,7 @@ class KeyEvent:
     def is_set(self):
         return self.event.is_set()
 
-    def eventCheck(self, check)
+    def eventCheck(self, check):
         return self.key == check.key
 
     def print(self):
