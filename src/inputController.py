@@ -71,8 +71,8 @@ class KeyEvent:
     def is_set(self):
         return self.event.is_set()
 
-    def eventCheck(self, check):
-        return self.key == check.key
+    def check(self, check):
+        return self.key == check
 
     def print(self):
         print("{0}: {1}".format(self.key, self.is_set()))

@@ -11,19 +11,18 @@ class Server:
     def __init__(self, ADDRESS, PORT):
         self.ADDRESS = ADDRESS
         self.PORT = PORT
-        self.previewEvent = inputController.KeyEvent('a', isToggle = True)
-        self.photoEvent   = inputController.KeyEvent('p')
         self.photo = photo.Photo()
 
-        self.previewWindow = preview.Preview(receiveMode = False, event = previewEvent)
+        self.previewWindow = preview.Preview(receiveMode = False, event = None)
 
         workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
 
     def _worker(self):
-        print("starting worker thread")
-        with socketserver.TCPServer((self.ADDRESS, self.PORT) PhotoEventHandler) as server:
+        print(f"starting worker thread: {self.PORT}")
+        with socketserver.TCPServer((self.ADDRESS, self.PORT), PhotoEventHandler) as server:
             server.serve_forever()
+
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
     def handle(self):
@@ -47,6 +46,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                         break
                     self.request.sendall(block)
 
+        if request is "preview":
             
             
         

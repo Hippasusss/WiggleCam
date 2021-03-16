@@ -6,6 +6,7 @@ import cv2
 import threading
 import time
 import subprocess
+import socket
 import sys 
 
 import preview
@@ -25,12 +26,7 @@ class Client:
         self.previewEvent = inputController.KeyEvent('a', isToggle = True)
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
         self.photoEvent   = inputController.KeyEvent('p')
-
         self.previewWindow = preview.Preview(receiveMode = True, event = self.previewEvent)
-
-        #Start worker thread running
-        workerThread = threading.Thread(target = self._worker, daemon = True)
-        workerThread.start()
 
         # Register input events and start input thread running
         self.inputControl.addEvent(self.previewEvent)
@@ -41,10 +37,14 @@ class Client:
         # Start the scripts running on the PI zeros
         self.startServers()
 
+        #Start worker thread running
+        workerThread = threading.Thread(target = self._worker, daemon = True)
+        workerThread.start()
+
     def _worker(self):
         print("starting worker thread")
         while True:
-            if (self.previewEvent.is_set()):
+            if (self.previewEvent.is_set()): #a
                 self.previewEvent.print()
                 print("previewing")
                 self.previewWindow.startPreview(self.ADDRESS, self.PORT)
@@ -53,14 +53,14 @@ class Client:
                 self.previewWindow.stopPreview()
                 self.inputControl.clearAllEvents()
 
-            if (self.photoEvent.is_set()):
+            if (self.photoEvent.is_set()): #p
                 self.photoEvent.print()
                 print("taking photo")
                 self.requestPhotos()
                 # tell minis to take a photo
                 self.inputControl.clearAllEvents()
 
-            if (self.reviewEvent.is_set()):
+            if (self.reviewEvent.is_set()): #r
                 self.reviewEvent.print()
                 print("looking at photos")
                 while(self.reviewEvent.is_set()):
@@ -70,13 +70,14 @@ class Client:
                 self.inputControl.clearAllEvents()
 
             time.sleep(0.3)
-            print("worker idle...")
 
     def requestPhotos(self):
+        i = 0
         for port in self.PORT:
+            address = self.SERVERADDRESSES[i]
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 print("connecting to port: " + port)
-                sock.connect(self.ADDRESS, port)
+                sock.connect((address, int(port)))
                 print("sending request...")
                 sock.sendall(bytes("photo", "utf-8"))
 
@@ -92,10 +93,8 @@ class Client:
                         if not block:
                             break
                         f.write(block)
-
                 sock.close()
-
-
+                i += 1
 
     def startServers(self):
         command = "python3 ~/script/WiggleCam/src/cameraModule.py"
@@ -107,5 +106,6 @@ class Client:
         
     def sendCommandToAllServers(self, command):
         for address in self.SERVERADDRESSES:
-            ssh = subprocess.run(["ssh", address, command])
+            print(f"COMMAND: {command}: {address} ")
+            ssh = subprocess.Popen(["ssh", address, command])
         
