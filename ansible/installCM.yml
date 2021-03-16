@@ -36,6 +36,7 @@
     - name: Install vidgear, picam and opencv-python
       pip: 
         name:
+            - getkey
             - vidgear 
             - opencv-python 
             - picamera 
