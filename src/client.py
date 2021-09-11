@@ -22,6 +22,7 @@ class Client:
         self.ADDRESS = ADDRESS
         self.PORT = PORT
         self.inputControl = inputController.Input()
+        self.ssh = []
 
         self.previewEvent = inputController.KeyEvent('a', isToggle = True)
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
@@ -69,6 +70,7 @@ class Client:
                 print("finished looking at photos")
                 self.inputControl.clearAllEvents()
 
+            print(self.ssh)
             time.sleep(0.3)
 
     def requestPhotos(self):
@@ -76,19 +78,26 @@ class Client:
         for port in self.PORT:
             address = self.SERVERADDRESSES[i]
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                try:
+                    sock.connect((address, int(port)))
+                except ConnectionRefusedError:
+                    print("Connection Refused")
+                    break
                 print("connecting to port: " + port)
-                sock.connect((address, int(port)))
                 print("sending request...")
                 sock.sendall(bytes("photo", "utf-8"))
 
 
                 filename, filesize = sock.recv(1024).decode().split(":")
-                print(f"Reveiving:{filename} {filesize}")
                 filename = os.path.basename(filename)
                 filesize = int(filesize)
 
+                print(f"Receiving:{filename} {filesize}")
+                count = 0;
                 with open(filename + str(port), "wb") as f:
                     while True:
+                        print(f"Receiving:{filename}: {count} bytes")
+                        count = count + 1024
                         block = sock.recv(1024)
                         if not block:
                             break
@@ -98,14 +107,23 @@ class Client:
 
     def startServers(self):
         command = "python3 ~/script/WiggleCam/src/cameraModule.py"
-        self.sendCommandToAllServers(command)
+        if len(self.ssh) is not 0:
+            print("ssh subprocesses already running")
+            return 
+        for address in self.SERVERADDRESSES:
+            subprocess.run(["ssh", address, "killall python3;", command])
+
+        sendCommandToAllServers()
+        #self.sendCommandToAllServers(command)
 
     def closeServers(self):
-        command = "close all the servers please"
-        self.sendCommandToAllServers(command)
+        self.sendCommandToAllServers("killall python3")
+        for p in self.ssh: 
+            p.terminate()
+            print(f"server: {p} has been terminated")
         
     def sendCommandToAllServers(self, command):
-        for address in self.SERVERADDRESSES:
-            print(f"COMMAND: {command}: {address} ")
-            ssh = subprocess.Popen(["ssh", address, command])
+        for p in self.ssh:
+            print(f"COMMAND: {command}: {p}")
+            p.communicate(command)
         

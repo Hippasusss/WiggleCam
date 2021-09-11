@@ -7,4 +7,5 @@ CLIENTADDRESS = "172.19.181.254"
 PREVIEWPORT = str(5554 + ID)
 
 serverR = server.Server(CLIENTADDRESS, PREVIEWPORT)
+print("serverStarted)
 
