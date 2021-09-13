@@ -2,12 +2,14 @@ from vidgear.gears import NetGear
 from getkey import getkey, keys
 from enum import Enum
 
+import warnings
 import cv2
 import threading
 import time
 import subprocess
 import socket
 import sys 
+import paramiko
 
 import preview
 import inputController
@@ -17,8 +19,10 @@ import inputController
 # client side controller of everything 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
+    #SERVERADDRESSES = [ "p1", "p2", "p3", "p4" ]
 
     def __init__(self, ADDRESS, PORT):
+        warnings.filterwarnings("ignore") 
         self.ADDRESS = ADDRESS
         self.PORT = PORT
         self.inputControl = inputController.Input()
@@ -52,13 +56,13 @@ class Client:
                 # tell minis to start sending video
                 print("stopping preview")
                 self.previewWindow.stopPreview()
+                # tell the minis to stop
                 self.inputControl.clearAllEvents()
 
             if (self.photoEvent.is_set()): #p
                 self.photoEvent.print()
                 print("taking photo")
                 self.requestPhotos()
-                # tell minis to take a photo
                 self.inputControl.clearAllEvents()
 
             if (self.reviewEvent.is_set()): #r
@@ -69,8 +73,7 @@ class Client:
                 # display gifs that have been taken
                 print("finished looking at photos")
                 self.inputControl.clearAllEvents()
-
-            print(self.ssh)
+            #print(time.asctime(time.localtime()))
             time.sleep(0.3)
 
     def requestPhotos(self):
@@ -106,24 +109,30 @@ class Client:
                 i += 1
 
     def startServers(self):
-        command = "python3 ~/script/WiggleCam/src/cameraModule.py"
+        command = "python3 ~/script/WiggleCam/src/cameraModule.py &"
         if len(self.ssh) is not 0:
             print("ssh subprocesses already running")
             return 
         for address in self.SERVERADDRESSES:
-            subprocess.run(["ssh", address, "killall python3;", command])
+            ssh = paramiko.SSHClient()
+            ssh.load_system_host_keys()
+            ssh.connect(hostname = address)
+            self.ssh.append(ssh)
 
-        sendCommandToAllServers()
-        #self.sendCommandToAllServers(command)
+        self.sendCommandToAllServers("killall -9  python3")
+        self.sendCommandToAllServers(command)
 
     def closeServers(self):
-        self.sendCommandToAllServers("killall python3")
-        for p in self.ssh: 
-            p.terminate()
-            print(f"server: {p} has been terminated")
+        self.sendCommandToAllServers("killall -9 python3")
+        for ssh in self.ssh: 
+            ssh.close()
+            print(f"server: {ssh} has been terminated")
         
     def sendCommandToAllServers(self, command):
-        for p in self.ssh:
-            print(f"COMMAND: {command}: {p}")
-            p.communicate(command)
+        print("")
+        print("INPUT")
+        for ssh in self.ssh:
+            print(f"COMMAND: {command}: {ssh}")
+            ssh.exec_command(command)
+
         

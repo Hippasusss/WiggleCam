@@ -15,6 +15,6 @@ while True:
         time.sleep(0.1)
     except KeyboardInterrupt:
         clientR.closeServers()
-        print("interrupted")
+        print("interrupted: exit succesfull")
         break
 

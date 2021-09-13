@@ -7,16 +7,17 @@ from inputController import KeyEvent
 import cv2
 
 class Preview:
-    previewEvent = None
-    videoServer = None
-    receiveMode = None
-    resolution = (640, 480)
+
 
     def __init__(self, receiveMode, event):
+        self.resolution = (640, 480)
+        self.videoServer = None
         self.receiveMode = receiveMode
         self.previewEvent = event
+        self.isPreviewing = False
 
     def startPreview(self, IP, PORTS, RESOLUTION = (640, 480)):
+        self.isPreviewing = True
         self.resolution = RESOLUTION
         options = {"multiserver_mode": True}
         routine = self._previewReceive if self.receiveMode else self._previewSend 

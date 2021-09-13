@@ -47,7 +47,10 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                     self.request.sendall(block)
 
         if request is "preview":
-            
+            if previewWindow.isPreviewing is False:
+                previewWindow.startPreview()
+            else:
+                preiviewWindow.stopPreview()
             
         
 
