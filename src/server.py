@@ -42,15 +42,15 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             photoPath = self.photo.takePhoto()
             photoSize = os.path.getsize(photoPath)
 
-            # get name and size
-            self.reqest.send(f"{photoPath}:{photoSize}".encode())
+            # send name and filesize to client
+            self.reqest.sendall(bytes(f"{photoPath}:{photoSize}\n", "utf-8"))
 
             with open(filename, "rb") as f:
                 while True:
                     block = f.read(1024)
                     if not block:
                         break
-                    self.request.sendall(block)
+                    self.request.sendall(bytes(block))
 
         if request is "preview":
             if previewWindow.isPreviewing is False:

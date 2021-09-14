@@ -79,9 +79,13 @@ class Client:
             time.sleep(0.3)
 
     def requestPhotos(self):
+        print("")
+        print("REQUESTING PHOTO")
         for sock in self.sockets:
             sock.sendall(bytes("photo", "utf-8"))
-            filename, filesize = sock.recv(1024).decode().split(":")
+            returndata = str(sock.recv(1024), "utf-8")
+            print(returndata)
+            filename, filesize = returndata.split(":")
             filename = os.path.basename(filename)
             filesize = int(filesize)
 
@@ -95,6 +99,8 @@ class Client:
                     if not block:
                         break
                     f.write(block)
+        print("PHOTO SUCCESS")
+        print("")
 
     def connectToServers(self):
         i = 0
@@ -108,7 +114,7 @@ class Client:
                     print(f"connection to {i} successfull")
                     connected = True
                 except:
-                    print(f"failed conneciton on {i}. Trying again....")
+                    print(f"waiting for connection on {i}. Trying again....")
                     time.sleep(1)
             self.sockets.append(sock)
             i+=1
