@@ -11,24 +11,30 @@ class Server:
     def __init__(self, ADDRESS, PORT):
         self.ADDRESS = ADDRESS
         self.PORT = PORT
-        self.photo = photo.Photo()
 
-        self.previewWindow = preview.Preview(receiveMode = False, event = None)
 
         workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
 
     def _worker(self):
         print(f"starting worker thread: {self.PORT}")
-        with socketserver.TCPServer((self.ADDRESS, self.PORT), PhotoEventHandler) as server:
+        with PhotoServer(('', int(self.PORT)), PhotoEventHandler) as server:
+            print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT{self.PORT}")
             server.serve_forever()
+
+class PhotoServer(socketserver.TCPServer):
+    def service_actions(self):
+        print("server Running")
+        self.handle_request()
+        time.sleep(0.2)
 
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
-    def handle(self):
-        # Get data
-        # self.data = self.request.recv(1024).strip()
 
+    photo = photo.Photo()
+    previewWindow = preview.Preview(receiveMode = False, event = None)
+
+    def handle(self):
         # Take Photo and format data
         request = self.request.recv(1024).strip()
 

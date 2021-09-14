@@ -139,3 +139,15 @@ Wiggle preview is now implemented properly. now on to taking photos.
 
 spent the last few days ripping all the threading bits apart and reorganising them. Have things 
 organised a bit more than they were. still no wiggling photos to show.
+
+
+### 14.09.2021 
+--------------
+
+Oh dear. I shelved this for a week and it turned into a few months and ended up being half a year. oops. 
+
+I came back to it and binned all of the SSH code that starts the scripts running on the servers/pi minis.
+The smashing thing about python is that there's always a really sick library that will do everything
+you've been stressing over in three lines of code. So i've replaced it all with one of them: Paramiko. EZ.
+
+

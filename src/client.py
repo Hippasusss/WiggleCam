@@ -19,7 +19,6 @@ import inputController
 # client side controller of everything 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-    #SERVERADDRESSES = [ "p1", "p2", "p3", "p4" ]
 
     def __init__(self, ADDRESS, PORT):
         warnings.filterwarnings("ignore") 
@@ -27,6 +26,7 @@ class Client:
         self.PORT = PORT
         self.inputControl = inputController.Input()
         self.ssh = []
+        self.sockets = []
 
         self.previewEvent = inputController.KeyEvent('a', isToggle = True)
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
@@ -41,6 +41,8 @@ class Client:
 
         # Start the scripts running on the PI zeros
         self.startServers()
+
+        self.connectToServers()
 
         #Start worker thread running
         workerThread = threading.Thread(target = self._worker, daemon = True)
@@ -77,36 +79,40 @@ class Client:
             time.sleep(0.3)
 
     def requestPhotos(self):
+        for sock in self.sockets:
+            sock.sendall(bytes("photo", "utf-8"))
+            filename, filesize = sock.recv(1024).decode().split(":")
+            filename = os.path.basename(filename)
+            filesize = int(filesize)
+
+            print(f"Receiving:{filename} {filesize}")
+            count = 0;
+            with open(filename + str(port), "wb") as f:
+                while True:
+                    print(f"Receiving:{filename}: {count} bytes")
+                    count = count + 1024
+                    block = sock.recv(1024)
+                    if not block:
+                        break
+                    f.write(block)
+
+    def connectToServers(self):
         i = 0
         for port in self.PORT:
             address = self.SERVERADDRESSES[i]
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            connected = False
+            while not connected:
                 try:
                     sock.connect((address, int(port)))
-                except ConnectionRefusedError:
-                    print("Connection Refused")
-                    break
-                print("connecting to port: " + port)
-                print("sending request...")
-                sock.sendall(bytes("photo", "utf-8"))
+                    print(f"connection to {i} successfull")
+                    connected = True
+                except:
+                    print(f"failed conneciton on {i}. Trying again....")
+                    time.sleep(1)
+            self.sockets.append(sock)
+            i+=1
 
-
-                filename, filesize = sock.recv(1024).decode().split(":")
-                filename = os.path.basename(filename)
-                filesize = int(filesize)
-
-                print(f"Receiving:{filename} {filesize}")
-                count = 0;
-                with open(filename + str(port), "wb") as f:
-                    while True:
-                        print(f"Receiving:{filename}: {count} bytes")
-                        count = count + 1024
-                        block = sock.recv(1024)
-                        if not block:
-                            break
-                        f.write(block)
-                sock.close()
-                i += 1
 
     def startServers(self):
         command = "python3 ~/script/WiggleCam/src/cameraModule.py &"
@@ -124,15 +130,18 @@ class Client:
 
     def closeServers(self):
         self.sendCommandToAllServers("killall -9 python3")
+        for sock in self.sockets:
+            sock.close()
         for ssh in self.ssh: 
             ssh.close()
             print(f"server: {ssh} has been terminated")
         
     def sendCommandToAllServers(self, command):
         print("")
-        print("INPUT")
+        print("SENDING COMMAND")
         for ssh in self.ssh:
             print(f"COMMAND: {command}: {ssh}")
             ssh.exec_command(command)
+        print("")
 
         
