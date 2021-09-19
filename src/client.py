@@ -10,6 +10,7 @@ import subprocess
 import socket
 import sys 
 import paramiko
+import os
 
 import preview
 import inputController
@@ -78,20 +79,23 @@ class Client:
             #print(time.asctime(time.localtime()))
             time.sleep(0.3)
 
-    def requestPhotos(self):
+    def requestPreview(self):
         print("")
         print("REQUESTING PHOTO")
         for sock in self.sockets:
-            sock.sendall(bytes("photo", "utf-8"))
+            sock.sendall(bytes("preview", "utf-8"))
             returndata = str(sock.recv(1024), "utf-8")
             print(returndata)
+            if returndata == "incorrect":
+                print("Server Shat It")
+                break
             filename, filesize = returndata.split(":")
             filename = os.path.basename(filename)
             filesize = int(filesize)
 
             print(f"Receiving:{filename} {filesize}")
             count = 0;
-            with open(filename + str(port), "wb") as f:
+            with open("photo" + str(self.PORT), "wb") as f:
                 while True:
                     print(f"Receiving:{filename}: {count} bytes")
                     count = count + 1024
@@ -99,7 +103,34 @@ class Client:
                     if not block:
                         break
                     f.write(block)
-        print("PHOTO SUCCESS")
+        print("PHOTO COMPLETE")
+        print("")
+
+    def requestPhotos(self):
+        print("")
+        print("REQUESTING PHOTO")
+        for sock in self.sockets:
+            sock.sendall(bytes("photo", "utf-8"))
+            returndata = str(sock.recv(1024), "utf-8")
+            print(returndata)
+            if returndata == "incorrect":
+                print("Server Shat It")
+                break
+            filename, filesize = returndata.split(":")
+            filename = os.path.basename(filename)
+            filesize = int(filesize)
+
+            print(f"Receiving:{filename} {filesize}")
+            count = 0;
+            with open("photo" + str(self.PORT), "wb") as f:
+                while True:
+                    print(f"Receiving:{filename}: {count} bytes")
+                    count = count + 1024
+                    block = sock.recv(1024)
+                    if not block:
+                        break
+                    f.write(block)
+        print("PHOTO COMPLETE")
         print("")
 
     def connectToServers(self):
@@ -131,7 +162,7 @@ class Client:
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
 
-        self.sendCommandToAllServers("killall -9  python3")
+        #self.sendCommandToAllServers("killall -9  python3")
         self.sendCommandToAllServers(command)
 
     def closeServers(self):

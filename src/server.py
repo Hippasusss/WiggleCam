@@ -1,6 +1,7 @@
 import threading
 import socketserver
 import os
+import time
 
 import preview
 import photo
@@ -33,30 +34,36 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
     photo = photo.Photo()
     previewWindow = preview.Preview(receiveMode = False, event = None)
+    encodeType = "utf-8"
 
     def handle(self):
         # Take Photo and format data
-        request = self.request.recv(1024).strip()
+        request = str(self.request.recv(1024).strip(), self.encodeType)
+        print(request)
 
-        if request is "photo":
+        if request == "photo":
             photoPath = self.photo.takePhoto()
             photoSize = os.path.getsize(photoPath)
 
             # send name and filesize to client
-            self.reqest.sendall(bytes(f"{photoPath}:{photoSize}\n", "utf-8"))
+            nameSize = bytes(f"{photoPath}:{photoSize}", self.encodeType)
+            print(nameSize)
+            self.request.sendall(nameSize)
 
-            with open(filename, "rb") as f:
+            with open(photoPath, "rb") as f:
                 while True:
                     block = f.read(1024)
                     if not block:
                         break
                     self.request.sendall(bytes(block))
-
-        if request is "preview":
+        elif request == "preview":
             if previewWindow.isPreviewing is False:
                 previewWindow.startPreview()
             else:
                 preiviewWindow.stopPreview()
+        else:
+            print("Incorrect Request")
+            self.request.sendall(bytes("incorrect", self.encodeType))
             
         
 

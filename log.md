@@ -151,3 +151,8 @@ The smashing thing about python is that there's always a really sick library tha
 you've been stressing over in three lines of code. So i've replaced it all with one of them: Paramiko. EZ.
 
 
+### 14.09.2021 2
+--------------
+
+Just got the server and client to speak to each other after a day of thrashing around like a buffoon. As ever it
+was really easy in the end. 
