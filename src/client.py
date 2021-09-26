@@ -112,6 +112,8 @@ class Client:
         print("")
         print("REQUESTING PHOTO")
         for sock in self.sockets:
+            name = sock.getsockname()
+            print(f"in: {name[0], name[1]}" )
             sock.sendall(bytes("photo", "utf-8"))
             returndata = str(sock.recv(1024), "utf-8")
             print(returndata)
@@ -127,19 +129,13 @@ class Client:
             print(f"Receiving:{filename} {filesize}")
             blockSize = filesize
             count = 0;
-            name = sock.getsockname()
             print(name[1])
-            with open("photo" + filetype , "wb") as f:
-                while True:
-                    print(f"Receiving: {filename}: {count}/{filesize} bytes")
-                    count = count + blockSize 
-                    block = sock.recv(blockSize)
-                    if not block:
-                        print("finished")
-                        break
-                    f.write(block)
+            with open("photo " + str(name[1]) + filetype , "wb") as f:
+                print(f"Receiving: {filename}: {count}/{filesize} bytes")
+                block = sock.recv(blockSize)
+                f.write(block)
             print(name[1])
-            print("out")
+            print(f"out: {name[0], name[1]}" )
         print("PHOTO COMPLETE")
         print("")
 
