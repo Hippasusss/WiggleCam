@@ -95,7 +95,8 @@ class Client:
 
             print(f"Receiving:{filename} {filesize}")
             count = 0;
-            with open("photo" + str(self.PORT), "wb") as f:
+            sockname = sock.getsockname()
+            with open("photo" + sockname, "wb") as f:
                 while True:
                     print(f"Receiving:{filename}: {count} bytes")
                     count = count + 1024
@@ -103,6 +104,7 @@ class Client:
                     if not block:
                         break
                     f.write(block)
+            print(sockname)
         print("PHOTO COMPLETE")
         print("")
 
@@ -119,17 +121,25 @@ class Client:
             filename, filesize = returndata.split(":")
             filename = os.path.basename(filename)
             filesize = int(filesize)
+            filetype = "." + filename.split(".")[1]
+            
 
             print(f"Receiving:{filename} {filesize}")
+            blockSize = filesize
             count = 0;
-            with open("photo" + str(self.PORT), "wb") as f:
+            name = sock.getsockname()
+            print(name[1])
+            with open("photo" + filetype , "wb") as f:
                 while True:
-                    print(f"Receiving:{filename}: {count} bytes")
-                    count = count + 1024
-                    block = sock.recv(1024)
+                    print(f"Receiving: {filename}: {count}/{filesize} bytes")
+                    count = count + blockSize 
+                    block = sock.recv(blockSize)
                     if not block:
+                        print("finished")
                         break
                     f.write(block)
+            print(name[1])
+            print("out")
         print("PHOTO COMPLETE")
         print("")
 
@@ -162,7 +172,7 @@ class Client:
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
 
-        #self.sendCommandToAllServers("killall -9  python3")
+        self.sendCommandToAllServers("killall -9  python3")
         self.sendCommandToAllServers(command)
 
     def closeServers(self):

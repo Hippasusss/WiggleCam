@@ -52,7 +52,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
             with open(photoPath, "rb") as f:
                 while True:
-                    block = f.read(1024)
+                    block = f.read(photoSize)
                     if not block:
                         break
                     self.request.sendall(bytes(block))
