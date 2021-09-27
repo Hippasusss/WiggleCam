@@ -1,5 +1,6 @@
 import threading
 import socketserver
+import socket
 import os
 import time
 
@@ -23,7 +24,7 @@ class Server:
             print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT{self.PORT}")
             server.serve_forever()
 
-class PhotoServer(socketserver.TCPServer):
+class PhotoServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def service_actions(self):
         print("server Running")
         self.handle_request()
@@ -44,9 +45,11 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
         if request == "photo":
             photoPath = self.photo.takePhoto()
             photoSize = os.path.getsize(photoPath)
+            name, extension = photoPath.split(".")
+            finalName = name + socket.gethostname()[-1] + "." + extension
 
             # send name and filesize to client
-            nameSize = bytes(f"{photoPath}:{photoSize}", self.encodeType)
+            nameSize = bytes(f"{finalName}:{photoSize}", self.encodeType)
             print(nameSize)
             self.request.sendall(nameSize)
 
