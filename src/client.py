@@ -117,10 +117,12 @@ class Client:
             sock.sendall(bytes("photo", "utf-8"))
 
         threads = []
+        print("")
+        print("STARTING REVEIVE THREADS")
         for sock in self.sockets:
-            print("STARTING REVEIVE THREADS")
             writeThread = threading.Thread(target = self._receivephoto, args=(sock,))
             writeThread.start()
+            print(f"started thread: {writeThread}")
             threads.append(writeThread)
         for thred in threads:
             thred.join()
@@ -129,10 +131,11 @@ class Client:
         print("")
 
     def _receivephoto(self, sock):
+        time.sleep(0.01)
         name = sock.getsockname()
-        print(f"receiving size: {name[0], name[1]}" )
+        print(f"receiving size: {name[1]}" )
         returndata = str(sock.recv(1024), "utf-8")
-        print(f"size: {name[0], name[1]}, {returndata}" )
+        print(f"size: {name[1]}, {returndata}" )
         if returndata == "incorrect":
             print("Server Shat It")
             return
@@ -154,42 +157,6 @@ class Client:
                 f.write(block)
         print(name[1])
         print(f"out: {name[0], name[1]}" )
-
-
-
-    def requestPhotosre(self):
-        print("")
-        print("REQUESTING PHOTO")
-        for sock in self.sockets:
-            name = sock.getsockname()
-            print(f"in: {name[0], name[1]}" )
-            sock.sendall(bytes("photo", "utf-8"))
-            returndata = str(sock.recv(1024), "utf-8")
-            print(returndata)
-            if returndata == "incorrect":
-                print("Server Shat It")
-                break
-            filepath, filesize = returndata.split(":")
-            filename = os.path.basename(filepath)
-            filesize = int(filesize)
-            filetype = "." + filename.split(".")[1]
-            
-
-            print(f"Receiving:{filename} {filesize}")
-            blockSize = filesize
-            count = 0;
-            print(name[1])
-            with open("photo " + str(name[1]) + filetype , "wb") as f:
-                while True:
-                    print(f"Receiving: {filename}: {count}/{filesize} bytes")
-                    block = sock.recv(blockSize)
-                    if not block:
-                        break
-                    f.write(block)
-            print(name[1])
-            print(f"out: {name[0], name[1]}" )
-        print("PHOTO COMPLETE")
-        print("")
 
     def connectToServers(self):
         i = 0

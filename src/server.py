@@ -26,9 +26,8 @@ class Server:
 
 class PhotoServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def service_actions(self):
-        print("server Running")
         self.handle_request()
-        time.sleep(0.2)
+        print("Request Handled")
 
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
@@ -54,12 +53,12 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             self.request.sendall(nameSize)
 
             with open(photoPath, "rb") as f:
-                while True:
-                    block = f.read(photoSize)
-                    if not block:
-                        break
-                    self.request.sendall(bytes(block))
+                block = f.read(photoSize)
+                if not block:
+                   return 
+                self.request.sendall(bytes(block))
         elif request == "preview":
+            print("previewing")
             if previewWindow.isPreviewing is False:
                 previewWindow.startPreview()
             else:
