@@ -11,6 +11,7 @@ import socket
 import sys 
 import paramiko
 import os
+import gifStitcher
 
 import preview
 import inputController
@@ -82,29 +83,6 @@ class Client:
     def requestPreview(self):
         print("")
         print("REQUESTING PHOTO")
-        for sock in self.sockets:
-            sock.sendall(bytes("preview", "utf-8"))
-            returndata = str(sock.recv(1024), "utf-8")
-            print(returndata)
-            if returndata == "incorrect":
-                print("Server Shat It")
-                break
-            filename, filesize = returndata.split(":")
-            filename = os.path.basename(filename)
-            filesize = int(filesize)
-
-            print(f"Receiving:{filename} {filesize}")
-            count = 0;
-            sockname = sock.getsockname()
-            with open("photo" + sockname, "wb") as f:
-                while True:
-                    print(f"Receiving:{filename}: {count} bytes")
-                    count = count + 1024
-                    block = sock.recv(1024)
-                    if not block:
-                        break
-                    f.write(block)
-            print(sockname)
         print("PHOTO COMPLETE")
         print("")
 
@@ -119,8 +97,9 @@ class Client:
         threads = []
         print("")
         print("STARTING REVEIVE THREADS")
+        photoList =[]
         for sock in self.sockets:
-            writeThread = threading.Thread(target = self._receivephoto, args=(sock,))
+            writeThread = threading.Thread(target = self._receivephoto, args=(sock,photoList))
             writeThread.start()
             print(f"started thread: {writeThread}")
             threads.append(writeThread)
@@ -130,7 +109,12 @@ class Client:
         print("PHOTO COMPLETE")
         print("")
 
-    def _receivephoto(self, sock):
+        print("CREATING GIF")
+        print("")
+        photoList.sort()
+        gifStitcher.stitch(photoList, "newGif")
+
+    def _receivephoto(self, sock, photoList):
         time.sleep(0.01)
         name = sock.getsockname()
         print(f"receiving size: {name[1]}" )
@@ -146,15 +130,20 @@ class Client:
 
         print(f"Receiving:{filename} {filesize}")
         blockSize = filesize
-        count = 0;
         print(name[1])
         with open(filename , "wb") as f:
+            photoList.append(f.name)
             while True:
-                print(f"Receiving: {filename}: {count}/{filesize} bytes")
+                print(f"Receiving: {filename}")
                 block = sock.recv(blockSize)
                 if not block:
+                    f.close()
                     break
-                f.write(block)
+                if f.tell() >= filesize:
+                    f.close()
+                    break
+                f.write(block)    
+
         print(name[1])
         print(f"out: {name[0], name[1]}" )
 
@@ -187,7 +176,7 @@ class Client:
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
 
-        #self.sendCommandToAllServers("killall -9  python3")
+        self.sendCommandToAllServers("killall -9  python3")
         self.sendCommandToAllServers(command)
 
     def closeServers(self):
