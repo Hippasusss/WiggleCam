@@ -26,8 +26,20 @@ class Server:
 
 class PhotoServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     def service_actions(self):
+        self.removeAllPhotos()
         self.handle_request()
         print("Request Handled")
+
+    def removeAllPhotos(self):
+        extension = [".jpg", ".gif"]
+        directory = os.path.dirname(os.path.realpath(__file__)) 
+        
+        files = os.listdir(directory)
+
+        for item in files:
+            for e in extension:
+                if item.endswith(e):
+                    os.remove(os.path.join(directory, item))
 
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
@@ -57,6 +69,8 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                 if not block:
                    return 
                 self.request.sendall(bytes(block))
+
+
         elif request == "preview":
             print("previewing")
             if previewWindow.isPreviewing is False:

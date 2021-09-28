@@ -176,7 +176,7 @@ class Client:
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
 
-        self.sendCommandToAllServers("killall -9  python3")
+        #self.sendCommandToAllServers("killall -9  python3")
         self.sendCommandToAllServers(command)
 
     def closeServers(self):
