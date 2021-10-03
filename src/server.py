@@ -30,6 +30,7 @@ class PhotoServer(socketserver.ThreadingTCPServer):
         socketserver.ThreadingTCPServer.__init__(self, adress, handler)
         self.HOST = host
         self.PORT = port 
+        self.allow_reuse_address = True
     def service_actions(self):
         print("Waiting for next request")
         self.handle_request()
@@ -63,7 +64,6 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                 self.request.sendall(bytes(block))
             print("photo sent")
             self.removeAllPhotos()
-
 
         elif request == "preview":
             print("previewing")

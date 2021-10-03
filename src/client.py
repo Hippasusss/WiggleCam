@@ -114,11 +114,7 @@ class Client:
         gifStitcher.stitch(photoList, "newGif")
 
     def _receivephoto(self, sock, photoList):
-        time.sleep(0.01)
-        name = sock.getsockname()
-        print(f"receiving: {name[1]}" )
-        returndata = SH.unpadBytes(sock.recv(SH.REQUESTSIZE))
-        print(f"size: {name[1]}, {returndata}" )
+        returndata = self.receiveDataFromServer(sock)
         if returndata == "incorrect":
             print("Server Shat It")
             return
@@ -128,7 +124,6 @@ class Client:
 
         print(f"Receiving:{filename} {filesize}")
         blockSize = filesize
-        print(name[1])
         with open(filename , "wb") as f:
             photoList.append(f.name)
             while True:
@@ -141,9 +136,7 @@ class Client:
                     f.close()
                     break
                 f.write(block)    
-
-        print(name[1])
-        print(f"out: {name[0], name[1]}" )
+        print(f"finished: {filename}")
 
     def connectToServers(self):
         i = 0
@@ -198,5 +191,16 @@ class Client:
             name = sock.getsockname()
             print(f"requesting preview: {name[0], name[1]}" )
             sock.sendall(SH.padBytes(f"{request}"))
+
+    def receiveDataFromServer(self, sock):
+        print(" " )
+        print(f"RECEIVING DATA: sock.getsockname()[1]" )
+        rawData = sock.recv(SH.REQUESTSIZE)
+        returndata = SH.unpadBytes(rawData)
+        print(f"rawsize: {len(rawData)}" )
+        print(f"stripsize: {len(returndata)}" )
+        print(f"data: {returndata}" )
+        print(" " )
+        return returndata
 
 
