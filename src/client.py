@@ -52,6 +52,7 @@ class Client:
     def _worker(self):
         print("starting worker thread")
         while True:
+
             if (self.previewEvent.is_set()): #a
                 self.previewEvent.print()
                 print("previewing")

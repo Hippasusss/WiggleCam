@@ -30,18 +30,13 @@ class PhotoServer(socketserver.ThreadingTCPServer):
         socketserver.ThreadingTCPServer.__init__(self, adress, handler)
         self.HOST = host
         self.PORT = port 
-
     def service_actions(self):
         print("Waiting for next request")
         self.handle_request()
 
-
-
 class PhotoEventHandler(socketserver.BaseRequestHandler):
-
     photo = photo.Photo()
     previewWindow = preview.Preview(receiveMode = False, event = None)
-
     def handle(self):
         # Take Photo and format data
         request = self.request.recv(SH.REQUESTSIZE)
@@ -68,11 +63,14 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
         elif request == "preview":
             print("previewing")
-            if self.previewWindow.isPreviewing is False:
+            if PhotoEventHandler.previewWindow.isPreviewing is False:
                 #self.previewWindow.startPreview(self.server.HOST, str(int(self.server.PORT) + 4))
-                self.previewWindow.startPreview("192.168.0.30", str(int(self.server.PORT) + 4))
+                try:
+                    PhotoEventHandler.previewWindow.startPreview(SH.CLIENTIP, str(int(self.server.PORT) + 4))
+                except:
+                    pass
             else:
-                self.preiviewWindow.stopPreview()
+                PhotoEventHandler.preiviewWindow.stopPreview()
         
         else:
             print("Incorrect Request")
