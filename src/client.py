@@ -11,14 +11,12 @@ import socket
 import sys 
 import paramiko
 import os
-import gifStitcher
 
 import preview
 import inputController
+import socketHelper
+import gifStitcher
 
-#CONTROLLER
-
-# client side controller of everything 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
 
@@ -56,10 +54,12 @@ class Client:
             if (self.previewEvent.is_set()): #a
                 self.previewEvent.print()
                 print("previewing")
+                self.requestPreview()
                 self.previewWindow.startPreview(self.ADDRESS, self.PORT)
                 # tell minis to start sending video
                 print("stopping preview")
                 self.previewWindow.stopPreview()
+                self.requestPreview()
                 # tell the minis to stop
                 self.inputControl.clearAllEvents()
 
@@ -82,17 +82,14 @@ class Client:
 
     def requestPreview(self):
         print("")
-        print("REQUESTING PHOTO")
-        print("PHOTO COMPLETE")
-        print("")
+        print("REQUESTING PREVIEW")
+        self.sendRequestToAllServers("photo")
+
 
     def requestPhotos(self):
         print("")
         print("REQUESTING PHOTO")
-        for sock in self.sockets:
-            name = sock.getsockname()
-            print(f"requesting photo: {name[0], name[1]}" )
-            sock.sendall(bytes("photo", "utf-8"))
+        self.sendRequestToAllServers("photo")
 
         threads = []
         print("")
@@ -194,5 +191,11 @@ class Client:
             print(f"COMMAND: {command}: {ssh}")
             ssh.exec_command(command)
         print("")
-
         
+    def sendRequestToAllServers(self, request)
+        for sock in self.sockets:
+            name = sock.getsockname()
+            print(f"requesting preview: {name[0], name[1]}" )
+            sock.sendall(SH.padBytes(bytes(f"{request}", "utf-8"), SH.REQUESTSIZE))
+
+

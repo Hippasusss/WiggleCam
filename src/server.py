@@ -6,6 +6,7 @@ import time
 
 import preview
 import photo
+import socketHelper
 
 class Server:
     # INPUT EVENTS
@@ -20,18 +21,23 @@ class Server:
 
     def _worker(self):
         print(f"starting worker thread: {self.PORT}")
-        with PhotoServer(('', int(self.PORT)), PhotoEventHandler) as server:
-            print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT{self.PORT}")
+        with PhotoServer(('', int(self.PORT)), PhotoEventHandler, self.ADDRESS, self.PORT) as server:
+            print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT:{self.PORT}")
             server.serve_forever()
 
-class PhotoServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+class PhotoServer(socketserver.ThreadingTCPServer):
+    def __init__(self, adress, handler, host, port):
+        socketserver.ThreadingTCPServer.__init__(self, adress, handler)
+        self.HOST = host
+        self.PORT = port 
+
     def service_actions(self):
         self.removeAllPhotos()
         self.handle_request()
         print("Request Handled")
 
     def removeAllPhotos(self):
-        extension = [".jpg", ".gif"]
+        extension = [".jpg", ".gif", ".png", ".raw"]
         directory = os.path.dirname(os.path.realpath(__file__)) 
         
         files = os.listdir(directory)
@@ -50,7 +56,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         # Take Photo and format data
-        request = str(self.request.recv(1024).strip(), self.encodeType)
+        request = str(self.request.recv(SH.REQUESTSIZE).strip(), self.encodeType)
         print(request)
 
         if request == "photo":
@@ -73,10 +79,10 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
         elif request == "preview":
             print("previewing")
-            if previewWindow.isPreviewing is False:
-                previewWindow.startPreview()
+            if self.previewWindow.isPreviewing is False:
+                self.previewWindow.startPreview(self.server.HOST, self.server.PORT)
             else:
-                preiviewWindow.stopPreview()
+                self.preiviewWindow.stopPreview()
         else:
             print("Incorrect Request")
             self.request.sendall(bytes("incorrect", self.encodeType))
