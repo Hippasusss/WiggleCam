@@ -56,7 +56,7 @@ class Client:
                 self.previewEvent.print()
                 print("previewing")
                 self.requestPreview()
-                self.previewWindow.startPreview(self.ADDRESS, self.PREVIEWPORTS)
+                self.previewWindow.startPreview(SH.CLIENTIP, self.PREVIEWPORTS)
                 # tell minis to start sending video
                 print("stopping preview")
                 self.previewWindow.stopPreview()
@@ -94,7 +94,7 @@ class Client:
 
         threads = []
         print("")
-        print("STARTING REVEIVE THREADS")
+        print("STARTING RECEIVE THREADS")
         photoList =[]
         for sock in self.sockets:
             writeThread = threading.Thread(target = self._receivephoto, args=(sock,photoList))
@@ -115,7 +115,7 @@ class Client:
     def _receivephoto(self, sock, photoList):
         time.sleep(0.01)
         name = sock.getsockname()
-        print(f"receiving size: {name[1]}" )
+        print(f"receiving: {name[1]}" )
         returndata = SH.unpadBytes(sock.recv(SH.REQUESTSIZE))
         print(f"size: {name[1]}, {returndata}" )
         if returndata == "incorrect":
@@ -124,7 +124,6 @@ class Client:
         filepath, filesize = returndata.split(":")
         filename = os.path.basename(filepath)
         filesize = int(filesize)
-        
 
         print(f"Receiving:{filename} {filesize}")
         blockSize = filesize

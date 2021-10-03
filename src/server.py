@@ -14,7 +14,7 @@ class Server:
     def __init__(self):
         self.ADDRESS = socket.gethostname() 
         self.ID = int(self.ADDRESS[-1:])
-        self.PORT = str(5554 + ID) 
+        self.PORT = str(5554 + self.ID) 
 
         workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
@@ -32,21 +32,9 @@ class PhotoServer(socketserver.ThreadingTCPServer):
         self.PORT = port 
 
     def service_actions(self):
-        self.removeAllPhotos()
+        print("Waiting for next request")
         self.handle_request()
 
-    def removeAllPhotos(self):
-        print("Removing Photos")
-        extension = [".jpg", ".gif", ".png", ".raw"]
-        directory = os.path.dirname(os.path.realpath(__file__)) 
-        
-        files = os.listdir(directory)
-
-        for item in files:
-            for e in extension:
-                if item.endswith(e):
-                    os.remove(os.path.join(directory, item))
-        print("Photos Removed")
 
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
@@ -57,10 +45,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
     def handle(self):
         # Take Photo and format data
         request = self.request.recv(SH.REQUESTSIZE)
-        print(request)
         request = SH.unpadBytes(request)
-        print(repr(request))
-        print(repr("preview"))
 
         if request == "photo":
             photoPath = self.photo.takePhoto()
@@ -78,19 +63,30 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                 if not block:
                    return 
                 self.request.sendall(bytes(block))
+            self.removeAllPhotos()
 
 
         elif request == "preview":
             print("previewing")
             if self.previewWindow.isPreviewing is False:
-                self.previewWindow.startPreview(self.server.HOST, str(int(self.server.PORT) + 4))
+                #self.previewWindow.startPreview(self.server.HOST, str(int(self.server.PORT) + 4))
+                self.previewWindow.startPreview("192.168.0.30", str(int(self.server.PORT) + 4))
             else:
                 self.preiviewWindow.stopPreview()
+        
         else:
             print("Incorrect Request")
             self.request.sendall(SH.padBytes("incorrect"))
             
         print("Request Handled")
-        
 
-
+    def removeAllPhotos(self):
+        print("Removing Photos")
+        extension = [".jpg", ".gif", ".png", ".raw"]
+        directory = os.path.dirname(os.path.realpath(__file__)) 
+        files = os.listdir(directory)
+        for item in files:
+            for e in extension:
+                if item.endswith(e):
+                    os.remove(os.path.join(directory, item))
+        print("Photos Removed")

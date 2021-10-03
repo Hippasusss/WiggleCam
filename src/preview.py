@@ -37,7 +37,7 @@ class Preview:
         cv2.destroyAllWindows()
 
     def _previewReceive(self):
-        PORTLOW = 5555
+        PORTLOW = 5559
         cv2.startWindowThread()
         cv2.namedWindow("WiggleCam")
 
@@ -72,6 +72,7 @@ class Preview:
         cv2.destroyAllWindows()
 
     def _previewSend(self):
+        self.isPreviewing = True
         options = {"hflip": True,
                    "exposure_mode": "auto", 
                    "iso": 800, 
@@ -82,7 +83,7 @@ class Preview:
 
         self.videoStream = PiGear(resolution = self.resolution, framerate = 24, logging = True, **options).start()
 
-        while self.previewEvent.is_set():
+        while self.isPreviewing:
             frame = self.videoStream.read()
             if frame is not None:
                 self.videoServer.send(frame)

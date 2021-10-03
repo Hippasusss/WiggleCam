@@ -8,9 +8,10 @@ class Photo:
     scriptPath = ''
 
     def __init__(self):
-        self.camera = PiCamera()
         self.scriptPath = os.path.dirname(os.path.realpath(__file__))
 
     def takePhoto(self):
-        self.camera.capture(self.pathToPhoto)
+        camera = PiCamera()
+        camera.capture(self.pathToPhoto)
+        camera.close()
         return os.path.join(self.scriptPath, self.pathToPhoto)

@@ -1,11 +1,7 @@
 import client 
 import time
 
-"""
-SERVERADRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-"""
-
-clientR = client.Client(ADDRESS)
+clientR = client.Client()
 
 while True:
     try:
@@ -14,4 +10,7 @@ while True:
         clientR.closeServers()
         print("interrupted: exit succesfull")
         break
+
+from subprocess import call
+call(["stty", "sane"])
 
