@@ -6,15 +6,15 @@ import time
 
 import preview
 import photo
-import socketHelper
+from socketHelper import SH
 
 class Server:
     # INPUT EVENTS
 
-    def __init__(self, ADDRESS, PORT):
-        self.ADDRESS = ADDRESS
-        self.PORT = PORT
-
+    def __init__(self):
+        self.ADDRESS = socket.gethostname() 
+        self.ID = int(self.ADDRESS[-1:])
+        self.PORT = str(5554 + ID) 
 
         workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
@@ -34,9 +34,9 @@ class PhotoServer(socketserver.ThreadingTCPServer):
     def service_actions(self):
         self.removeAllPhotos()
         self.handle_request()
-        print("Request Handled")
 
     def removeAllPhotos(self):
+        print("Removing Photos")
         extension = [".jpg", ".gif", ".png", ".raw"]
         directory = os.path.dirname(os.path.realpath(__file__)) 
         
@@ -46,18 +46,21 @@ class PhotoServer(socketserver.ThreadingTCPServer):
             for e in extension:
                 if item.endswith(e):
                     os.remove(os.path.join(directory, item))
+        print("Photos Removed")
 
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
 
     photo = photo.Photo()
     previewWindow = preview.Preview(receiveMode = False, event = None)
-    encodeType = "utf-8"
 
     def handle(self):
         # Take Photo and format data
-        request = str(self.request.recv(SH.REQUESTSIZE).strip(), self.encodeType)
+        request = self.request.recv(SH.REQUESTSIZE)
         print(request)
+        request = SH.unpadBytes(request)
+        print(repr(request))
+        print(repr("preview"))
 
         if request == "photo":
             photoPath = self.photo.takePhoto()
@@ -66,7 +69,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             finalName = name + socket.gethostname()[-1] + "." + extension
 
             # send name and filesize to client
-            nameSize = bytes(f"{finalName}:{photoSize}", self.encodeType)
+            nameSize = SH.padBytes(f"{finalName}:{photoSize}")
             print(nameSize)
             self.request.sendall(nameSize)
 
@@ -80,13 +83,14 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
         elif request == "preview":
             print("previewing")
             if self.previewWindow.isPreviewing is False:
-                self.previewWindow.startPreview(self.server.HOST, self.server.PORT)
+                self.previewWindow.startPreview(self.server.HOST, str(int(self.server.PORT) + 4))
             else:
                 self.preiviewWindow.stopPreview()
         else:
             print("Incorrect Request")
-            self.request.sendall(bytes("incorrect", self.encodeType))
+            self.request.sendall(SH.padBytes("incorrect"))
             
+        print("Request Handled")
         
 
 

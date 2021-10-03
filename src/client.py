@@ -14,16 +14,17 @@ import os
 
 import preview
 import inputController
-import socketHelper
+from socketHelper import SH
 import gifStitcher
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
 
-    def __init__(self, ADDRESS, PORT):
+    def __init__(self):
         warnings.filterwarnings("ignore") 
-        self.ADDRESS = ADDRESS
-        self.PORT = PORT
+        self.ADDRESS = "172.19.181.254"
+        self.PORTS = ("5555", "5556", "5557", "5558")
+        self.PREVIEWPORTS = ("5559", "5560", "5561", "5562")
         self.inputControl = inputController.Input()
         self.ssh = []
         self.sockets = []
@@ -55,7 +56,7 @@ class Client:
                 self.previewEvent.print()
                 print("previewing")
                 self.requestPreview()
-                self.previewWindow.startPreview(self.ADDRESS, self.PORT)
+                self.previewWindow.startPreview(self.ADDRESS, self.PREVIEWPORTS)
                 # tell minis to start sending video
                 print("stopping preview")
                 self.previewWindow.stopPreview()
@@ -83,7 +84,7 @@ class Client:
     def requestPreview(self):
         print("")
         print("REQUESTING PREVIEW")
-        self.sendRequestToAllServers("photo")
+        self.sendRequestToAllServers("preview")
 
 
     def requestPhotos(self):
@@ -115,7 +116,7 @@ class Client:
         time.sleep(0.01)
         name = sock.getsockname()
         print(f"receiving size: {name[1]}" )
-        returndata = str(sock.recv(1024), "utf-8")
+        returndata = SH.unpadBytes(sock.recv(SH.REQUESTSIZE))
         print(f"size: {name[1]}, {returndata}" )
         if returndata == "incorrect":
             print("Server Shat It")
@@ -146,7 +147,7 @@ class Client:
 
     def connectToServers(self):
         i = 0
-        for port in self.PORT:
+        for port in self.PORTS:
             address = self.SERVERADDRESSES[i]
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             connected = False
@@ -192,10 +193,11 @@ class Client:
             ssh.exec_command(command)
         print("")
         
-    def sendRequestToAllServers(self, request)
+    def sendRequestToAllServers(self, request):
         for sock in self.sockets:
             name = sock.getsockname()
             print(f"requesting preview: {name[0], name[1]}" )
-            sock.sendall(SH.padBytes(bytes(f"{request}", "utf-8"), SH.REQUESTSIZE))
+            #print(SH.padBytes(bytes(f"{request}", SH.ENCODETYPE), SH.REQUESTSIZE))
+            sock.sendall(SH.padBytes(f"{request}"))
 
 
