@@ -46,18 +46,22 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             photoPath = self.photo.takePhoto()
             photoSize = os.path.getsize(photoPath)
             name, extension = photoPath.split(".")
-            finalName = name + socket.gethostname()[-1] + "." + extension
+            name = name + socket.gethostname()[-1] + "." + extension
 
             # send name and filesize to client
-            nameSize = SH.padBytes(f"{finalName}:{photoSize}")
+            nameSize = SH.padBytes(f"{name}:{photoSize}")
             print(nameSize)
             self.request.sendall(nameSize)
+            print("sent name size")
 
+            print("sending photo")
             with open(photoPath, "rb") as f:
+                print("sending")
                 block = f.read(photoSize)
                 if not block:
                    return 
                 self.request.sendall(bytes(block))
+            print("photo sent")
             self.removeAllPhotos()
 
 

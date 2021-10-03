@@ -197,7 +197,6 @@ class Client:
         for sock in self.sockets:
             name = sock.getsockname()
             print(f"requesting preview: {name[0], name[1]}" )
-            #print(SH.padBytes(bytes(f"{request}", SH.ENCODETYPE), SH.REQUESTSIZE))
             sock.sendall(SH.padBytes(f"{request}"))
 
 
