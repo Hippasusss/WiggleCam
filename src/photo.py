@@ -12,6 +12,7 @@ class Photo:
 
     def takePhoto(self):
         camera = PiCamera()
+        camera.vflip = True
         camera.capture(self.pathToPhoto)
         camera.close()
         return os.path.join(self.scriptPath, self.pathToPhoto)
