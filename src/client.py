@@ -199,6 +199,7 @@ class Client:
         returndata = SH.unpadBytes(rawData)
         print(f"rawsize: {len(rawData)}" )
         print(f"stripsize: {len(returndata)}" )
+        print(f"rawData: {repr(rawData)}" )
         print(f"data: {returndata}" )
         print(" " )
         return returndata

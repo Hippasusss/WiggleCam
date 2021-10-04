@@ -51,9 +51,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
             # send name and filesize to client
             nameSize = SH.padBytes(f"{name}:{photoSize}")
-            print(nameSize)
             self.request.sendall(nameSize)
-            print("sent name size")
 
             print("sending photo")
             with open(photoPath, "rb") as f:
