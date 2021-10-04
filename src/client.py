@@ -29,7 +29,7 @@ class Client:
         self.ssh = []
         self.sockets = []
 
-        self.previewEvent = inputController.KeyEvent('a', isToggle = True)
+        self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
         self.photoEvent   = inputController.KeyEvent('p')
         self.previewWindow = preview.Preview(receiveMode = True, event = self.previewEvent)
@@ -158,6 +158,7 @@ class Client:
 
     def startServers(self):
         command = "python3 ~/script/WiggleCam/src/cameraModule.py &"
+         
         if len(self.ssh) is not 0:
             print("ssh subprocesses already running")
             return 

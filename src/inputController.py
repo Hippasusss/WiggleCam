@@ -17,11 +17,11 @@ class Input:
         while (True):
             Input = getkey() 
             print("input =============================================")
-            print("keyInput: {0}".format(Input))
+            print(f"keyInput: {Input}")
             for event in self.events: 
                 if event.check(Input):
                     if waitingEvent is None:
-                        print("setting: {0} from input {1}".format(event.key, Input))
+                        print(f"setting: {event.key} from input {Input}")
                         event.set()
                         if event.isToggle: 
                             print("Toggle On")
@@ -31,7 +31,9 @@ class Input:
                         print("Toggle Off")
                         waitingEvent = None
                     else:
-                        print("blocked. waiting for {0}".format(waitingEvent.key))
+                        print(f"blocked. waiting for {waitinEvent.key}")
+                elif waitingEvent is not None and waitingEvent.checkModifier(Input):
+                    print(f"Modifier input. setting event {waitingEvent.key} to current state of {Input}")
             print("input =============================================")
 
 
@@ -46,11 +48,16 @@ class KeyEvent:
     event = None
     key = None
     isToggle = False
+    modifiers = []
+    mosifierState = ""
 
-    def __init__(self, keyCode, isToggle = False):
+    def __init__(self, keyCode, isToggle = False, modifiers = []):
         self.key = keyCode
         self.isToggle = isToggle
         self.event = threading.Event()
+        self.modifiers = modifiers
+        if len(modifiers) > 0:
+            self.modifierState = modifiers[0]
         self.clear()
 
     def set(self):
@@ -73,6 +80,12 @@ class KeyEvent:
 
     def check(self, check):
         return self.key == check
+
+    def checkModifier(self, check):
+        isModifier = check in self.modifiers
+        if isModifier:
+            modifierState = check
+        return isModifier 
 
     def print(self):
         print("{0}: {1}".format(self.key, self.is_set()))

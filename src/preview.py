@@ -49,6 +49,7 @@ class Preview:
         currentIndex = 0
         modifier = 1
 
+        #TODO: event spaghetti
         while self.previewEvent.is_set():
             data = self.videoServer.recv()
             if data is None:
@@ -56,14 +57,20 @@ class Preview:
             senderPort, frame = data
             writeFrameIndex = int(senderPort) - PORTLOW
             frameArray[writeFrameIndex] = frame
-            if changeTimer.check():
-                while True:
-                    currentIndex+=modifier
-                    if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
-                        modifier = -modifier
-                    if frameArray[currentIndex] is not None:
-                        break
-                changeTimer.reset(timerGap)
+
+            state = int(self.previewEvent.modifierState) - 1
+            if state == 4:
+                if changeTimer.check():
+                    while True:
+                        currentIndex+=modifier
+                        if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
+                            modifier = -modifier
+                        if frameArray[currentIndex] is not None:
+                            break
+                    changeTimer.reset(timerGap)
+            else:
+                currentIndex = state
+
             frame = frameArray[currentIndex]
             if frame is not None:
                 cv2.imshow("WiggleCam", frame)

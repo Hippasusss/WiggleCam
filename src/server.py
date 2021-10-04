@@ -49,18 +49,16 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             name, extension = photoPath.split(".")
             name = name + socket.gethostname()[-1] + "." + extension
 
-            # send name and filesize to client
+            time.sleep(0.05)
+        
             nameSize = SH.padBytes(f"{name}:{photoSize}")
             self.request.sendall(nameSize)
 
-            print("sending photo")
             with open(photoPath, "rb") as f:
-                print("sending")
                 block = f.read(photoSize)
                 if not block:
                    return 
                 self.request.sendall(bytes(block))
-            print("photo sent")
             self.removeAllPhotos()
 
         elif request == "preview":
