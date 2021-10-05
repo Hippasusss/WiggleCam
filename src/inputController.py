@@ -33,6 +33,7 @@ class Input:
                     else:
                         print(f"blocked. waiting for {waitinEvent.key}")
                 elif waitingEvent is not None and waitingEvent.checkModifier(Input):
+                    waitingEvent.setModifierState(Input)
                     print(f"Modifier input. setting event {waitingEvent.key} to current state of {Input}")
             print("input =============================================")
 
@@ -45,25 +46,25 @@ class Input:
             event.clear()
 
 class KeyEvent:
-    event = None
-    key = None
-    isToggle = False
-    modifiers = []
-    mosifierState = ""
 
     def __init__(self, keyCode, isToggle = False, modifiers = []):
         self.key = keyCode
         self.isToggle = isToggle
         self.event = threading.Event()
         self.modifiers = modifiers
+        self.modifierState = " "
         if len(modifiers) > 0:
             self.modifierState = modifiers[0]
+
         self.clear()
 
     def set(self):
         if not self.event.is_set():
             self.event.set()
         self.print()
+
+    def setModifierState(self, setVar):
+        self.modifierState = setVar
 
     def clear(self):
         if self.event.is_set():
@@ -83,8 +84,6 @@ class KeyEvent:
 
     def checkModifier(self, check):
         isModifier = check in self.modifiers
-        if isModifier:
-            modifierState = check
         return isModifier 
 
     def print(self):

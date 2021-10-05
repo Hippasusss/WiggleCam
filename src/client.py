@@ -28,6 +28,7 @@ class Client:
         self.inputControl = inputController.Input()
         self.ssh = []
         self.sockets = []
+        self.debugThreads = []
 
         self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
@@ -139,25 +140,23 @@ class Client:
         print(f"finished: {filename}")
 
     def connectToServers(self):
-        i = 0
-        for port in self.PORTS:
+        for i, port in enumerate(self.PORTS):
             address = self.SERVERADDRESSES[i]
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             connected = False
             while not connected:
                 try:
                     sock.connect((address, int(port)))
-                    print(f"connection to {i} successfull")
+                    print(f"connection to {i + 1} successfull")
                     connected = True
                 except:
-                    print(f"waiting for connection on {i}. Trying again....")
+                    print(f"waiting for connection on {i + 1}. Trying again....")
                     time.sleep(1)
             self.sockets.append(sock)
-            i+=1
 
 
     def startServers(self):
-        command = "python3 ~/script/WiggleCam/src/cameraModule.py &"
+        command = "python3 ~/script/WiggleCam/src/cameraModule.py"
          
         if len(self.ssh) is not 0:
             print("ssh subprocesses already running")
@@ -168,8 +167,8 @@ class Client:
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
 
-        #self.sendCommandToAllServers("killall -9  python3")
-        self.sendCommandToAllServers(command)
+        self.sendCommandToAllServers("killall -9  python3")
+        self.sendCommandToAllServers(command, True)
 
     def closeServers(self):
         self.sendCommandToAllServers("killall -9 python3")
@@ -179,14 +178,26 @@ class Client:
             ssh.close()
             print(f"server: {ssh} has been terminated")
         
-    def sendCommandToAllServers(self, command):
+    def sendCommandToAllServers(self, command, printOutput = False):
         print("")
         print("SENDING COMMAND")
         for ssh in self.ssh:
             print(f"COMMAND: {command}: {ssh}")
-            ssh.exec_command(command)
+            stdin, stdout, stderr = ssh.exec_command(command)#, get_pty=True)
+            if printOutput:
+                print("printing")
+                printThread = threading.Thread(target = self.printSSHCommand, args = [stdout], daemon = True)
+                printThread.start()
         print("")
         
+
+    def printSSHCommand(self, stdout):
+        for l in stdout.readline():
+            print(l)
+
+    #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
+
+
     def sendRequestToAllServers(self, request):
         for sock in self.sockets:
             name = sock.getsockname()

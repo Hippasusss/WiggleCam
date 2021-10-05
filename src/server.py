@@ -48,8 +48,6 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             photoSize = os.path.getsize(photoPath)
             name, extension = photoPath.split(".")
             name = name + socket.gethostname()[-1] + "." + extension
-
-            time.sleep(0.05)
         
             nameSize = SH.padBytes(f"{name}:{photoSize}")
             self.request.sendall(nameSize)

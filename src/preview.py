@@ -49,7 +49,6 @@ class Preview:
         currentIndex = 0
         modifier = 1
 
-        #TODO: event spaghetti
         while self.previewEvent.is_set():
             data = self.videoServer.recv()
             if data is None:
@@ -63,7 +62,9 @@ class Preview:
                 if changeTimer.check():
                     while True:
                         currentIndex+=modifier
-                        if (currentIndex == 0 or currentIndex == (len(frameArray) - 1)):
+                        numCameras = len(frameArray)
+                        if (currentIndex <= 0 or currentIndex >= (numCameras - 1)):
+                            currentIndex = max(min(currentIndex, numCameras - 1), 0)
                             modifier = -modifier
                         if frameArray[currentIndex] is not None:
                             break
@@ -80,7 +81,8 @@ class Preview:
 
     def _previewSend(self):
         self.isPreviewing = True
-        options = {"hflip": True,
+        options = {"vflip": True,
+                   "hflip": True,
                    "exposure_mode": "auto", 
                    "iso": 800, 
                    "exposure_compensation": 15, 
