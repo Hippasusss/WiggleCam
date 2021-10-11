@@ -168,7 +168,7 @@ class Client:
             self.ssh.append(ssh)
 
         self.sendCommandToAllServers("killall -9  python3")
-        self.sendCommandToAllServers(command, True)
+        self.sendCommandToAllServers(command)
 
     def closeServers(self):
         self.sendCommandToAllServers("killall -9 python3")
@@ -178,13 +178,13 @@ class Client:
             ssh.close()
             print(f"server: {ssh} has been terminated")
         
-    def sendCommandToAllServers(self, command, printOutput = False):
+    def sendCommandToAllServers(self, command, printOutputAsync = False):
         print("")
         print("SENDING COMMAND")
         for ssh in self.ssh:
             print(f"COMMAND: {command}: {ssh}")
             stdin, stdout, stderr = ssh.exec_command(command)#, get_pty=True)
-            if printOutput:
+            if printOutputAsync:
                 print("printing")
                 printThread = threading.Thread(target = self.printSSHCommand, args = [stdout], daemon = True)
                 printThread.start()
