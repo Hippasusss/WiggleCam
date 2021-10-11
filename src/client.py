@@ -149,6 +149,8 @@ class Client:
                     sock.connect((address, int(port)))
                     print(f"connection to {i + 1} successfull")
                     connected = True
+                except KeyboardInterrupt:
+                    raise KeyboardInterrupt
                 except:
                     print(f"waiting for connection on {i + 1}. Trying again....")
                     time.sleep(1)

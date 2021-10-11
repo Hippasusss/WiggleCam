@@ -11,7 +11,7 @@ class Photo:
         self.scriptPath = os.path.dirname(os.path.realpath(__file__))
 
     def takePhoto(self):
-        camera = PiCamera()
+        camera = PiCamera(sensor_mode=2)
         camera.vflip = True
         camera.capture(self.pathToPhoto)
         camera.close()

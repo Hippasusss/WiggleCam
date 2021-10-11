@@ -87,10 +87,10 @@ class Preview:
                    "iso": 800, 
                    "exposure_compensation": 15, 
                    "awb_mode": "horizon", 
-                   "sensor_mode": 0,
+                   "sensor_mode": 2,
                    }
 
-        self.videoStream = PiGear(resolution = self.resolution, framerate = 24, logging = True, **options).start()
+        self.videoStream = PiGear(resolution = self.resolution, framerate = 13, logging = True, **options).start()
 
         while self.isPreviewing:
             frame = self.videoStream.read()
