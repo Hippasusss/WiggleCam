@@ -21,16 +21,18 @@ class Server:
 
     def _worker(self):
         print(f"starting worker thread: {self.PORT}")
+        PhotoServer.allow_reuse_address = True
         with PhotoServer(('', int(self.PORT)), PhotoEventHandler, self.ADDRESS, self.PORT) as server:
             print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT:{self.PORT}")
             server.serve_forever()
 
 class PhotoServer(socketserver.ThreadingTCPServer):
-    def __init__(self, adress, handler, host, port):
-        socketserver.ThreadingTCPServer.__init__(self, adress, handler)
+    def __init__(self, address, handler, host, port):
         self.HOST = host
         self.PORT = port 
         self.allow_reuse_address = True
+        socketserver.ThreadingTCPServer.allow_reuse_address = True
+        socketserver.ThreadingTCPServer.__init__(self, address, handler)
     def service_actions(self):
         print("Waiting for next request")
         self.handle_request()
@@ -57,7 +59,7 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                 if not block:
                    return 
                 self.request.sendall(bytes(block))
-            self.removeAllPhotos()
+            #self.removeAllPhotos()
 
         elif request == "preview":
             print("previewing")

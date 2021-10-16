@@ -153,12 +153,13 @@ class Client:
                     raise KeyboardInterrupt
                 except:
                     print(f"waiting for connection on {i + 1}. Trying again....")
+                    print(self.ssh[i])
                     time.sleep(1)
             self.sockets.append(sock)
 
 
     def startServers(self):
-        command = "python3 ~/script/WiggleCam/src/cameraModule.py"
+        command = "python3 -u ~/script/WiggleCam/src/cameraModule.py 2>&1"
          
         if len(self.ssh) is not 0:
             print("ssh subprocesses already running")
@@ -170,7 +171,7 @@ class Client:
             self.ssh.append(ssh)
 
         self.sendCommandToAllServers("killall -9  python3")
-        self.sendCommandToAllServers(command)
+        self.sendCommandToAllServers(command, True)
 
     def closeServers(self):
         self.sendCommandToAllServers("killall -9 python3")
@@ -185,7 +186,7 @@ class Client:
         print("SENDING COMMAND")
         for ssh in self.ssh:
             print(f"COMMAND: {command}: {ssh}")
-            stdin, stdout, stderr = ssh.exec_command(command)#, get_pty=True)
+            stdin, stdout, stderr = ssh.exec_command(command)# get_pty=True)
             if printOutputAsync:
                 print("printing")
                 printThread = threading.Thread(target = self.printSSHCommand, args = [stdout], daemon = True)
@@ -194,8 +195,9 @@ class Client:
         
 
     def printSSHCommand(self, stdout):
-        for l in stdout.readline():
-            print(l)
+        print(f"started printing {stdout}")
+        while(stdout.closed != True):
+            print("        REMOTE:" + stdout.readline())
 
     #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
 
@@ -203,7 +205,7 @@ class Client:
     def sendRequestToAllServers(self, request):
         for sock in self.sockets:
             name = sock.getsockname()
-            print(f"requesting preview: {name[0], name[1]}" )
+            print(f"requesting {request}: {name[0], name[1]}" )
             sock.sendall(SH.padBytes(f"{request}"))
 
     def receiveDataFromServer(self, sock):
