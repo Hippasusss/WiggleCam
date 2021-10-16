@@ -92,6 +92,7 @@ class Client:
     def requestPhotos(self):
         print("")
         print("REQUESTING PHOTO")
+        time.sleep(2)
         self.sendRequestToAllServers("photo")
 
         threads = []
