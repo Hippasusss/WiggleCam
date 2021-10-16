@@ -4,7 +4,7 @@ from picamera import PiCamera
 
 class Photo:
 
-    pathToPhoto = 'currentPhoto.jpg'
+    pathToPhoto = 'currentPhoto.png'
     scriptPath = ''
 
     def __init__(self):
@@ -12,6 +12,7 @@ class Photo:
 
     def takePhoto(self):
         camera = PiCamera(sensor_mode=2)
+        camera.iso=800
         camera.vflip = True
         finalPath = os.path.join(self.scriptPath, self.pathToPhoto)
         camera.capture(finalPath)

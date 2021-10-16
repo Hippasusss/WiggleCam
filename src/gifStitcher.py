@@ -19,6 +19,10 @@ def stitch(listOfPhotos, name):
             currentPhoto = abs(numPhotos - (i+1))
             print(f"photo:{currentPhoto}")
             arrangement.append(images[currentPhoto])
-    imageio.mimsave(f'{name}.gif', arrangement, fps=6)
+    writer = imageio.get_writer("test.mp4", fps = 6)
+
+    for im in arrangement:
+        writer.append_data(im)
+    writer.close()
 
 
