@@ -1,4 +1,3 @@
-from vidgear.gears import NetGear 
 from getkey import getkey, keys
 from enum import Enum
 
@@ -6,11 +5,11 @@ import warnings
 import cv2
 import threading
 import time
-import subprocess
 import socket
 import sys 
 import paramiko
 import os
+from pygame.locals import *
 
 import preview
 import inputController
@@ -33,7 +32,6 @@ class Client:
         self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
         self.photoEvent   = inputController.KeyEvent('p')
-        self.previewWindow = preview.Preview(receiveMode = True, event = self.previewEvent)
 
         # Register input events and start input thread running
         self.inputControl.addEvent(self.previewEvent)
@@ -49,6 +47,16 @@ class Client:
         #Start worker thread running
         workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
+
+        # Init pygame and screen
+        pygame.init()
+        pygame.mouse.set_visible(False)
+        screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+
+        if img is None or img.get_height() < 240: # Letterbox, clear background
+            screen.fill(0)
+        if img:
+            screen.blit(img, ((320 - img.get_width() ) / 2, (240 - img.get_height()) / 2))
 
     def _worker(self):
         print("starting worker thread")
@@ -67,8 +75,8 @@ class Client:
                 self.inputControl.clearAllEvents()
 
             if (self.photoEvent.is_set()): #p
-                self.photoEvent.print()
                 print("taking photo")
+                self.photoEvent.print()
                 self.requestPhotos()
                 self.inputControl.clearAllEvents()
 
@@ -192,15 +200,15 @@ class Client:
                 print("printing")
                 printThread = threading.Thread(target = self.printSSHCommand, args = [stdout], daemon = True)
                 printThread.start()
+                self.debugThreads.append(printThread)
         print("")
         
 
+    #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
     def printSSHCommand(self, stdout):
         print(f"started printing {stdout}")
         while(stdout.closed != True):
             print("        REMOTE:" + stdout.readline())
-
-    #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
 
 
     def sendRequestToAllServers(self, request):
