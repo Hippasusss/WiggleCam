@@ -3,6 +3,7 @@ import socketserver
 import socket
 import os
 import time
+import io
 
 import photo
 from socketHelper import SH
@@ -34,18 +35,18 @@ class PhotoServer(socketserver.ThreadingTCPServer):
         self.handle_request()
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
-    photo = photo.Photo()
+    camera = photo.Photo()
     def handle(self):
         # Take Photo and format data
         request = SH.unpadBytes(self.request.recv(SH.REQUESTSIZE))
 
         if request == "preview":
             while (True): #untill photo request
-                frameData = photo.getPreviewData()
+                frameData = self.camera.getPreviewData()
                 self.sendBytes(frameData)
 
         if request == "photo":
-            photoData = self.photo.takePhoto()
+            photoData = self.camera.takePhoto()
             self.sendBytes(photoData)
         
         else:
@@ -56,13 +57,12 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
 
     def sendBytes(self, datai, blockSize=2048):
         data = io.BytesIO(datai)
-        dataSize = data.getbuffer().nbytes
+        dataSize = int(data.getbuffer().nbytes)
         self.request.sendall(SH.padBytes(dataSize))
         while(True): #untill frame sent
             block = data.read(blockSize)
             if not block:
-                frameData.seek(0)
-                return 
+                break
             self.request.sendall(block)
         data.close()
 

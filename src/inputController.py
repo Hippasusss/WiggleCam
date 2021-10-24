@@ -53,9 +53,6 @@ class KeyEvent:
         self.event = threading.Event()
         self.modifiers = modifiers
         self.modifierState = 0
-        if len(modifiers) > 0:
-            self.modifierState = modifiers[0]
-
         self.clear()
 
     def set(self):
@@ -83,8 +80,9 @@ class KeyEvent:
         return self.key == check
 
     def checkModifier(self, check):
-        isModifier = int(check) in self.modifiers
-        return isModifier 
+        if check.isdigit() != True:
+            return False
+        return int(check) in self.modifiers
 
     def print(self):
         print("{0}: {1}".format(self.key, self.is_set()))

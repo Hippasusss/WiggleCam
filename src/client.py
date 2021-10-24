@@ -21,6 +21,8 @@ import gifStitcher
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
+    KILLSCRIPT = False
+    PRINTREMOTE = False
 
     def __init__(self):
         warnings.filterwarnings("ignore") 
@@ -54,7 +56,7 @@ class Client:
         # Init pygame and screen
         pygame.init()
         pygame.mouse.set_visible(False)
-        self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+        self.screen = pygame.display.set_mode((0,0), pygame.RESIZABLE)
 
     def _worker(self):
         print("starting worker thread")
@@ -87,7 +89,7 @@ class Client:
                data[i] = self.receiveBytes(sock)
 
             viewData = data[self.previewEvent.modifierState]
-            img = pygame.image.frombuffer(rgb , preRes, 'RGB')
+            img = pygame.image.frombuffer(viewData, preRes, 'RGB')
             self.screen.blit(img, preRes)
             pygame.display.update()
 
@@ -113,8 +115,8 @@ class Client:
         print(" " )
         print(f"RECEIVING DATA: {sock.getsockname()[1]}" )
         data = io.BytesIO()
-        dataSize = sock.recv(SH.REQUESTSIZE)
-        returndata = SH.unpadBytes(rawData)
+        rawData = sock.recv(SH.REQUESTSIZE)
+        dataSize = SH.unpadBytes(rawData)
         blockSize = 1024
         counter = 0
         
@@ -157,8 +159,9 @@ class Client:
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
 
-        self.sendCommandToAllServers("killall -9  python3")
-        self.sendCommandToAllServers(command, True)
+        if self.KILLSCRIPT: 
+            self.sendCommandToAllServers("killall -9  python3")
+        self.sendCommandToAllServers(command, self.PRINTREMOTE)
 
     def closeServers(self):
         self.sendCommandToAllServers("killall -9 python3")

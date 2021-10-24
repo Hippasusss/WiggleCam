@@ -9,7 +9,7 @@ class Photo:
     def __init__(self):
         self.camera = picamera.PiCamera(sensor_mode = 2)
         self.mode = 0
-        self.resolution = PRERES
+        self.resolution = Photo.PRERES
 
     def takePhoto(self):
         self.setSettings("photo")
