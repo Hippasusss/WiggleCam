@@ -4,7 +4,6 @@ import socket
 import os
 import time
 
-import preview
 import photo
 from socketHelper import SH
 
@@ -36,41 +35,33 @@ class PhotoServer(socketserver.ThreadingTCPServer):
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
     photo = photo.Photo()
-
     def handle(self):
         # Take Photo and format data
         request = SH.unpadBytes(self.request.recv(SH.REQUESTSIZE))
+
         if request == "preview":
             while (True): #untill photo request
                 frameData = photo.getPreviewData()
-                frameSize = photoData.getbuffer().nbytes
-                while(True): #untill frame sent
-                    block = frameData.read(1024)
-                    if not block:
-
-                        frameData.seek(0)
-                        return 
-                    self.request.sendall(bytes(block))
-
+                self.sendBytes(frameData)
 
         if request == "photo":
             photoData = self.photo.takePhoto()
-            photoSize = photoData.getbuffer().nbytes
-            name = socket.gethostname()[-1] 
-        
-            nameSize = SH.padBytes(f"{name}:{photoSize}")
-            self.request.sendall(nameSize)
-
-            while(True):
-                block = photoData.read(4096)
-                if not block:
-                   return 
-                self.request.sendall(bytes(block))
-            #self.removeAllPhotos()
+            self.sendBytes(photoData)
+            photoData.close()
         
         else:
             print("Incorrect Request")
             self.request.sendall(SH.padBytes("incorrect"))
             
         print("Request Handled")
+
+    def sendBytes(self, data, blockSize=2048):
+        dataSize = data.getbuffer().nbytes
+        self.request.sendall(SH.padBytes(dataSize))
+        while(True): #untill frame sent
+            block = data.read(blockSize)
+            if not block:
+                frameData.seek(0)
+                return 
+            self.request.sendall(block)
 

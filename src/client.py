@@ -9,6 +9,7 @@ import socket
 import sys 
 import paramiko
 import os
+import io 
 from pygame.locals import *
 
 import preview
@@ -124,29 +125,7 @@ class Client:
         gifStitcher.stitch(photoList, "newGif")
 
     def _receivephoto(self, sock, photoList):
-        returndata = self.receiveDataFromServer(sock)
-        if returndata == "incorrect":
-            print("Server Shat It")
-            return
-        filepath, filesize = returndata.split(":")
-        filename = os.path.basename(filepath)
-        filesize = int(filesize)
-
-        print(f"Receiving:{filename} {filesize}")
-        blockSize = filesize
-        with open(filename , "wb") as f:
-            photoList.append(f.name)
-            while True:
-                print(f"Receiving: {filename}")
-                block = sock.recv(blockSize)
-                if not block:
-                    f.close()
-                    break
-                if f.tell() >= filesize:
-                    f.close()
-                    break
-                f.write(block)    
-        print(f"finished: {filename}")
+        photoList.append(self.recieveBytes(sock))
 
     def connectToServers(self):
         for i, port in enumerate(self.PORTS):
@@ -198,18 +177,16 @@ class Client:
             stdin, stdout, stderr = ssh.exec_command(command)# get_pty=True)
             if printOutputAsync:
                 print("printing")
-                printThread = threading.Thread(target = self.printSSHCommand, args = [stdout], daemon = True)
+                printThread = threading.Thread(target = _self.printSSHCommand, args = [stdout], daemon = True)
                 printThread.start()
                 self.debugThreads.append(printThread)
         print("")
-        
 
     #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
-    def printSSHCommand(self, stdout):
+    def _printSSHCommand(self, stdout):
         print(f"started printing {stdout}")
         while(stdout.closed != True):
             print("        REMOTE:" + stdout.readline())
-
 
     def sendRequestToAllServers(self, request):
         for sock in self.sockets:
@@ -217,16 +194,18 @@ class Client:
             print(f"requesting {request}: {name[0], name[1]}" )
             sock.sendall(SH.padBytes(f"{request}"))
 
-    def receiveDataFromServer(self, sock):
+    def receiveBytes(self, sock):
         print(" " )
         print(f"RECEIVING DATA: sock.getsockname()[1]" )
-        rawData = sock.recv(SH.REQUESTSIZE)
+        data = io.BytesIO()
+        dataSize = sock.recv(SH.REQUESTSIZE)
         returndata = SH.unpadBytes(rawData)
-        print(f"rawsize: {len(rawData)}" )
-        print(f"stripsize: {len(returndata)}" )
-        print(f"rawData: {repr(rawData)}" )
-        print(f"data: {returndata}" )
-        print(" " )
-        return returndata
+        blockSize = 1024
+        counter = 0
+        
+        while(counter <= dataSize):
+            data.write(sock.recv(blockSize))
+            counter += blockSize
+        return data 
 
 

@@ -1,14 +1,13 @@
 
 import io
 import os
-from picamera import PiCamera
+import picamera
 
 class Photo:
 
     def __init__(self):
         self.camera = picamera.PiCamera(sensor_mode = 2)
         self.mode = 0
-        self.preivewing = False
         self.resolution = (4056, 3040)
         self.previewStream = io.BytesIO()
 
@@ -20,6 +19,7 @@ class Photo:
         return stream 
     
     def getPreviewData(self):
+        self.previewStream.seek(0)
         self.camera.capture(self.previewStream, use_video_port=True, format='jpg')
         self.previewStream.seek(0)
         return self.previewStream
