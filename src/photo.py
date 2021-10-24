@@ -4,25 +4,31 @@ import os
 import picamera
 
 class Photo:
+    PRERES = (320,240)
 
     def __init__(self):
         self.camera = picamera.PiCamera(sensor_mode = 2)
         self.mode = 0
-        self.resolution = (4056, 3040)
-        self.previewStream = io.BytesIO()
+        self.resolution = PRERES
 
     def takePhoto(self):
         self.setSettings("photo")
-        stream = io.BytesIO()
-        self.camera.capture(stream, format="rgb")
+        data = self._getCameraData()
         self.setSettings("preview")
-        return stream 
+        return data 
     
     def getPreviewData(self):
-        self.previewStream.seek(0)
-        self.camera.capture(self.previewStream, use_video_port=True, format='jpg')
-        self.previewStream.seek(0)
-        return self.previewStream
+        data = self._getCameraData(True)
+        return data
+
+    def _getCameraData(self, video=False):
+        data = io.BytesIO()
+        self.camera.capture(data, use_video_port=video, format='rgb')
+        data.seek(0)
+        dataArray = data.read()
+        data.close()
+        return dataArray
+
 
     def setSettings(self, mode):
         if (mode == "photo"):
@@ -33,6 +39,6 @@ class Photo:
             self.camera.awb_mode = "horizon"
             self.camera.resolution = (4056, 3040)
         if (mode == "preview"):
-            self.camera.resolution = (320,280)
+            self.camera.resolution = Photo.PRERES
 
 

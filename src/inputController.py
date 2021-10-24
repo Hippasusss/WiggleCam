@@ -52,7 +52,7 @@ class KeyEvent:
         self.isToggle = isToggle
         self.event = threading.Event()
         self.modifiers = modifiers
-        self.modifierState = " "
+        self.modifierState = 0
         if len(modifiers) > 0:
             self.modifierState = modifiers[0]
 
@@ -64,7 +64,7 @@ class KeyEvent:
         self.print()
 
     def setModifierState(self, setVar):
-        self.modifierState = setVar
+        self.modifierState = int(setVar)
 
     def clear(self):
         if self.event.is_set():
@@ -83,7 +83,7 @@ class KeyEvent:
         return self.key == check
 
     def checkModifier(self, check):
-        isModifier = check in self.modifiers
+        isModifier = int(check) in self.modifiers
         return isModifier 
 
     def print(self):

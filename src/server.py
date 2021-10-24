@@ -47,7 +47,6 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
         if request == "photo":
             photoData = self.photo.takePhoto()
             self.sendBytes(photoData)
-            photoData.close()
         
         else:
             print("Incorrect Request")
@@ -55,7 +54,8 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             
         print("Request Handled")
 
-    def sendBytes(self, data, blockSize=2048):
+    def sendBytes(self, datai, blockSize=2048):
+        data = io.BytesIO(datai)
         dataSize = data.getbuffer().nbytes
         self.request.sendall(SH.padBytes(dataSize))
         while(True): #untill frame sent
@@ -64,4 +64,5 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
                 frameData.seek(0)
                 return 
             self.request.sendall(block)
+        data.close()
 

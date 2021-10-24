@@ -10,10 +10,12 @@ import sys
 import paramiko
 import os
 import io 
+import pygame
 from pygame.locals import *
 
 import preview
 import inputController
+import photo
 from socketHelper import SH
 import gifStitcher
 
@@ -52,12 +54,7 @@ class Client:
         # Init pygame and screen
         pygame.init()
         pygame.mouse.set_visible(False)
-        screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
-
-        if img is None or img.get_height() < 240: # Letterbox, clear background
-            screen.fill(0)
-        if img:
-            screen.blit(img, ((320 - img.get_width() ) / 2, (240 - img.get_height()) / 2))
+        self.screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 
     def _worker(self):
         print("starting worker thread")
@@ -65,67 +62,70 @@ class Client:
 
             if (self.previewEvent.is_set()): #a
                 self.previewEvent.print()
-                print("previewing")
                 self.requestPreview()
-                self.previewWindow.startPreview(SH.CLIENTIP, self.PREVIEWPORTS)
-                # tell minis to start sending video
-                print("stopping preview")
-                self.previewWindow.stopPreview()
-                self.requestPreview()
-                # tell the minis to stop
                 self.inputControl.clearAllEvents()
 
             if (self.photoEvent.is_set()): #p
-                print("taking photo")
                 self.photoEvent.print()
                 self.requestPhotos()
                 self.inputControl.clearAllEvents()
 
             if (self.reviewEvent.is_set()): #r
                 self.reviewEvent.print()
-                print("looking at photos")
-                while(self.reviewEvent.is_set()):
-                    continue
-                # display gifs that have been taken
-                print("finished looking at photos")
                 self.inputControl.clearAllEvents()
-            #print(time.asctime(time.localtime()))
+
             time.sleep(0.3)
 
     def requestPreview(self):
-        print("")
-        print("REQUESTING PREVIEW")
         self.sendRequestToAllServers("preview")
 
+        data = [None]*4
+        preRes = photo.Photo.PRERES
+        imgBuff = bytearray(preRes[0] * preRes[1] * 3)
+        while(self.previewEvent.is_set()):
+            for i, sock in enumerate(self.sockets):
+               data[i] = self.receiveBytes(sock)
+
+            viewData = data[self.previewEvent.modifierState]
+            img = pygame.image.frombuffer(rgb , preRes, 'RGB')
+            self.screen.blit(img, preRes)
+            pygame.display.update()
 
     def requestPhotos(self):
-        print("")
-        print("REQUESTING PHOTO")
         time.sleep(2)
         self.sendRequestToAllServers("photo")
-
         threads = []
-        print("")
-        print("STARTING RECEIVE THREADS")
-        photoList =[]
+        photoList = []
         for sock in self.sockets:
             writeThread = threading.Thread(target = self._receivephoto, args=(sock,photoList))
             writeThread.start()
-            print(f"started thread: {writeThread}")
             threads.append(writeThread)
         for thred in threads:
             thred.join()
 
-        print("PHOTO COMPLETE")
-        print("")
-
-        print("CREATING GIF")
-        print("")
         photoList.sort()
         gifStitcher.stitch(photoList, "newGif")
 
     def _receivephoto(self, sock, photoList):
         photoList.append(self.recieveBytes(sock))
+
+    def receiveBytes(self, sock):
+        print(" " )
+        print(f"RECEIVING DATA: {sock.getsockname()[1]}" )
+        data = io.BytesIO()
+        dataSize = sock.recv(SH.REQUESTSIZE)
+        returndata = SH.unpadBytes(rawData)
+        blockSize = 1024
+        counter = 0
+        
+        while(counter <= dataSize):
+            data.write(sock.recv(blockSize))
+            counter += blockSize
+
+        data.seek(0)
+        dataArray = data.read()
+        data.close()
+        return dataArray 
 
     def connectToServers(self):
         for i, port in enumerate(self.PORTS):
@@ -150,7 +150,6 @@ class Client:
         command = "python3 -u ~/script/WiggleCam/src/cameraModule.py 2>&1"
          
         if len(self.ssh) is not 0:
-            print("ssh subprocesses already running")
             return 
         for address in self.SERVERADDRESSES:
             ssh = paramiko.SSHClient()
@@ -170,17 +169,15 @@ class Client:
             print(f"server: {ssh} has been terminated")
         
     def sendCommandToAllServers(self, command, printOutputAsync = False):
-        print("")
         print("SENDING COMMAND")
         for ssh in self.ssh:
             print(f"COMMAND: {command}: {ssh}")
             stdin, stdout, stderr = ssh.exec_command(command)# get_pty=True)
             if printOutputAsync:
                 print("printing")
-                printThread = threading.Thread(target = _self.printSSHCommand, args = [stdout], daemon = True)
+                printThread = threading.Thread(target = self._printSSHCommand, args = [stdout], daemon = True)
                 printThread.start()
                 self.debugThreads.append(printThread)
-        print("")
 
     #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
     def _printSSHCommand(self, stdout):
@@ -194,18 +191,5 @@ class Client:
             print(f"requesting {request}: {name[0], name[1]}" )
             sock.sendall(SH.padBytes(f"{request}"))
 
-    def receiveBytes(self, sock):
-        print(" " )
-        print(f"RECEIVING DATA: sock.getsockname()[1]" )
-        data = io.BytesIO()
-        dataSize = sock.recv(SH.REQUESTSIZE)
-        returndata = SH.unpadBytes(rawData)
-        blockSize = 1024
-        counter = 0
-        
-        while(counter <= dataSize):
-            data.write(sock.recv(blockSize))
-            counter += blockSize
-        return data 
 
 
