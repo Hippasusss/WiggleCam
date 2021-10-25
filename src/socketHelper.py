@@ -1,7 +1,7 @@
 import sys
 
 class SH:
-    REQUESTSIZE = 128 
+    REQUESTSIZE = 64 
     ENCODETYPE = "utf-8"
     PADCHAR = '\x00'
     #CLIENTIP = "172.19.180.254"
@@ -31,5 +31,4 @@ class SH:
             data = int.from_bytes(inputData, 'little')
         if typedata == 'b':
             data = inputData
-        print(typedata)
         return data

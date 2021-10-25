@@ -1,6 +1,7 @@
 
 import io
 import os
+import sys 
 import picamera
 
 class Photo:
@@ -9,7 +10,7 @@ class Photo:
     def __init__(self):
         self.camera = picamera.PiCamera(sensor_mode = 2)
         self.mode = 0
-        self.resolution = Photo.PRERES
+        self.camera.resolution = Photo.PRERES
 
     def takePhoto(self):
         self.setSettings("photo")
@@ -27,6 +28,7 @@ class Photo:
         data.seek(0)
         dataArray = data.read()
         data.close()
+        print(sys.getsizeof(dataArray))
         return dataArray
 
 

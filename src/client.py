@@ -22,7 +22,7 @@ import gifStitcher
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
     KILLSCRIPT = False
-    PRINTREMOTE = False
+    PRINTREMOTE = False 
 
     def __init__(self):
         warnings.filterwarnings("ignore") 
@@ -83,23 +83,27 @@ class Client:
 
         data = [None]*4
         preRes = photo.Photo.PRERES
-        imgBuff = bytearray(preRes[0] * preRes[1] * 3)
+        print(f"pre:{preRes}")
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
                data[i] = self.receiveBytes(sock)
 
             viewData = data[self.previewEvent.modifierState]
+            print(f"finalsize: {sys.getsizeof(viewData)}")
             img = pygame.image.frombuffer(viewData, preRes, 'RGB')
             self.screen.blit(img, preRes)
             pygame.display.update()
 
     def requestPhotos(self):
+        def _receivephoto(self, sock, photoList):
+            photoList.append(self.recieveBytes(sock))
+
         time.sleep(2)
         self.sendRequestToAllServers("photo")
         threads = []
         photoList = []
         for sock in self.sockets:
-            writeThread = threading.Thread(target = self._receivephoto, args=(sock,photoList))
+            writeThread = threading.Thread(target = _receivephoto, args=(sock,photoList))
             writeThread.start()
             threads.append(writeThread)
         for thred in threads:
@@ -108,8 +112,6 @@ class Client:
         photoList.sort()
         gifStitcher.stitch(photoList, "newGif")
 
-    def _receivephoto(self, sock, photoList):
-        photoList.append(self.recieveBytes(sock))
 
     def receiveBytes(self, sock):
         print(" " )
@@ -117,15 +119,21 @@ class Client:
         data = io.BytesIO()
         rawData = sock.recv(SH.REQUESTSIZE)
         dataSize = SH.unpadBytes(rawData)
-        blockSize = 1024
-        counter = 0
+        blockSize = 2048 
         
-        while(counter <= dataSize):
+        print("RBexpectedSize")
+        print(dataSize)
+
+        while(data.tell() <= dataSize):
+            while((data.tell() + blockSize) > dataSize):
+                print("over")
+                data.write(sock.recv(dataSize - data.tell()))
             data.write(sock.recv(blockSize))
-            counter += blockSize
 
         data.seek(0)
         dataArray = data.read()
+        print("RBfinalreceivedSIZE")
+        print(sys.getsizeof(dataArray))
         data.close()
         return dataArray 
 
