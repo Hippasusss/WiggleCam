@@ -114,27 +114,24 @@ class Client:
 
 
     def receiveBytes(self, sock):
-        print(" " )
         print(f"RECEIVING DATA: {sock.getsockname()[1]}" )
-        data = io.BytesIO()
-        rawData = sock.recv(SH.REQUESTSIZE)
-        dataSize = SH.unpadBytes(rawData)
-        blockSize = 2048 
-        
-        print("RBexpectedSize")
-        print(dataSize)
+        dataArray = None
+        with io.BytesIO() as data:
+            rawData = sock.recv(SH.REQUESTSIZE)
+            dataSize = SH.unpadBytes(rawData)
+            blockSize = 2048 
+            
+            print("RBexpectedSize")
+            print(dataSize)
 
-        while(data.tell() <= dataSize):
-            while((data.tell() + blockSize) > dataSize):
-                print("over")
-                data.write(sock.recv(dataSize - data.tell()))
-            data.write(sock.recv(blockSize))
+            #TODO: MAKE THIS FUCKING THING READ THE RIGHT NUMBER OF BYTES
+            while(data.tell() <= dataSize):
+                data.write(sock.recv(blockSize))
 
-        data.seek(0)
-        dataArray = data.read()
-        print("RBfinalreceivedSIZE")
-        print(sys.getsizeof(dataArray))
-        data.close()
+            data.seek(0)
+            dataArray = data.read()
+            print("RBfinalreceivedSIZE")
+            print(sys.getsizeof(dataArray))
         return dataArray 
 
     def connectToServers(self):
