@@ -1,6 +1,4 @@
 from getkey import getkey, keys
-
-import cv2
 import threading
 import time
 import socket
@@ -9,13 +7,11 @@ import paramiko
 import os
 import io 
 import pygame
-from pygame.locals import *
 
-import preview
-import inputController
-import photo
 from socketHelper import SH
+import inputController
 import gifStitcher
+import photo
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
@@ -24,7 +20,6 @@ class Client:
 
     def __init__(self):
         # Start the scripts running on the PI zeros
-        self.startServers()
 
         self.ADDRESS = "172.19.181.254"
         self.PORTS = ("5555", "5556", "5557", "5558")
@@ -33,6 +28,7 @@ class Client:
         self.ssh = []
         self.sockets = []
         self.debugThreads = []
+        self.startServers()
 
         self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
@@ -136,7 +132,6 @@ class Client:
 
     def startServers(self):
         command = "python3 -u ~/script/WiggleCam/src/cameraModule.py 2>&1"
-         
         if len(self.ssh) is not 0:
             return 
         for address in self.SERVERADDRESSES:
@@ -144,7 +139,6 @@ class Client:
             ssh.load_system_host_keys()
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
-
         if self.KILLSCRIPT: 
             self.sendCommandToAllServers("killall -9  python3")
         self.sendCommandToAllServers(command, self.PRINTREMOTE)

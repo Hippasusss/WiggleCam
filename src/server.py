@@ -55,6 +55,11 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             
         print("Request Handled")
 
+    def sendBytes(self, data):
+        dataSize = len(data)
+        self.request.sendall(SH.padBytes(dataSize))
+        self.request.sendall(data)
+'''
     def sendBytes(self, datai):
         with io.BytesIO() as data:
             data.write(datai)
@@ -63,12 +68,4 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             self.request.sendall(SH.padBytes(dataSize))
             block = data.read(dataSize)
             self.request.sendall(block)
-
-    def sendBytes(self, datai):
-        with io.BytesIO() as data:
-            data.write(datai)
-            data.seek(0)
-            dataSize = int(data.getbuffer().nbytes)
-            self.request.sendall(SH.padBytes(dataSize))
-            block = data.read(dataSize)
-            self.request.sendall(block)
+'''
