@@ -40,12 +40,12 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
         # Take Photo and format data
         request = SH.unpadBytes(self.request.recv(SH.REQUESTSIZE))
 
-        if request == "preview":
+        if request == "prev":
             while (True): #untill photo request
                 frameData = self.camera.getPreviewData()
                 self.sendBytes(frameData)
 
-        if request == "photo":
+        if request == "phot":
             photoData = self.camera.takePhoto()
             self.sendBytes(photoData)
         
@@ -54,6 +54,15 @@ class PhotoEventHandler(socketserver.BaseRequestHandler):
             self.request.sendall(SH.padBytes("incorrect"))
             
         print("Request Handled")
+
+    def sendBytes(self, datai):
+        with io.BytesIO() as data:
+            data.write(datai)
+            data.seek(0)
+            dataSize = int(data.getbuffer().nbytes)
+            self.request.sendall(SH.padBytes(dataSize))
+            block = data.read(dataSize)
+            self.request.sendall(block)
 
     def sendBytes(self, datai):
         with io.BytesIO() as data:

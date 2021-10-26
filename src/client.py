@@ -1,7 +1,5 @@
 from getkey import getkey, keys
-from enum import Enum
 
-import warnings
 import cv2
 import threading
 import time
@@ -25,7 +23,9 @@ class Client:
     PRINTREMOTE = False 
 
     def __init__(self):
-        warnings.filterwarnings("ignore") 
+        # Start the scripts running on the PI zeros
+        self.startServers()
+
         self.ADDRESS = "172.19.181.254"
         self.PORTS = ("5555", "5556", "5557", "5558")
         self.PREVIEWPORTS = ("5559", "5560", "5561", "5562")
@@ -45,8 +45,6 @@ class Client:
         self.inputControl.startChecking()
 
         # Start the scripts running on the PI zeros
-        self.startServers()
-
         self.connectToServers()
 
         #Start worker thread running
@@ -75,14 +73,13 @@ class Client:
             time.sleep(0.3)
 
     def requestPreview(self):
-        self.sendRequestToAllServers("preview")
+        self.sendRequestToAllServers("prev")
         data = [None]*4
         preRes = photo.Photo.PRERES
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
                data[i] = self.receiveBytes(sock)
             viewData = data[self.previewEvent.modifierState]
-            #print(f"finalsize: {sys.getsizeof(viewData)}")
             img = pygame.image.frombuffer(viewData, preRes, 'RGB')
             self.screen.blit(img, (0,0))
             pygame.display.update()
@@ -91,7 +88,7 @@ class Client:
         def _receivephoto(self, sock, photoList):
             photoList.append(self.recieveBytes(sock))
         time.sleep(2)
-        self.sendRequestToAllServers("photo")
+        self.sendRequestToAllServers("phot")
         threads = []
         photoList = []
         for sock in self.sockets:

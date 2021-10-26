@@ -5,7 +5,8 @@ class SH:
     ENCODETYPE = "utf-8"
     PADCHAR = '\x00'
     #CLIENTIP = "172.19.180.254"
-    CLIENTIP = "192.168.0.30"
+    PHOTOREQUEST = 1
+    PREVIEWREQUEST = 2
     def padBytes(inputb):
         data = None 
         typedata = None
