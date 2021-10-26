@@ -56,48 +56,40 @@ class Client:
         # Init pygame and screen
         pygame.init()
         pygame.mouse.set_visible(False)
-        self.screen = pygame.display.set_mode((0,0), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((320,240), pygame.RESIZABLE)
 
     def _worker(self):
         print("starting worker thread")
         while True:
-
             if (self.previewEvent.is_set()): #a
                 self.previewEvent.print()
                 self.requestPreview()
                 self.inputControl.clearAllEvents()
-
             if (self.photoEvent.is_set()): #p
                 self.photoEvent.print()
                 self.requestPhotos()
                 self.inputControl.clearAllEvents()
-
             if (self.reviewEvent.is_set()): #r
                 self.reviewEvent.print()
                 self.inputControl.clearAllEvents()
-
             time.sleep(0.3)
 
     def requestPreview(self):
         self.sendRequestToAllServers("preview")
-
         data = [None]*4
         preRes = photo.Photo.PRERES
-        print(f"pre:{preRes}")
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
                data[i] = self.receiveBytes(sock)
-
             viewData = data[self.previewEvent.modifierState]
-            print(f"finalsize: {sys.getsizeof(viewData)}")
+            #print(f"finalsize: {sys.getsizeof(viewData)}")
             img = pygame.image.frombuffer(viewData, preRes, 'RGB')
-            self.screen.blit(img, preRes)
+            self.screen.blit(img, (0,0))
             pygame.display.update()
 
     def requestPhotos(self):
         def _receivephoto(self, sock, photoList):
             photoList.append(self.recieveBytes(sock))
-
         time.sleep(2)
         self.sendRequestToAllServers("photo")
         threads = []
@@ -108,31 +100,23 @@ class Client:
             threads.append(writeThread)
         for thred in threads:
             thred.join()
-
         photoList.sort()
         gifStitcher.stitch(photoList, "newGif")
 
-
     def receiveBytes(self, sock):
-        print(f"RECEIVING DATA: {sock.getsockname()[1]}" )
+        def recvall(sock, num):
+            data = bytearray()
+            while len(data) < num:
+                packet = sock.recv(num - len(data))
+                if not packet: 
+                    break
+                data.extend(packet)
+            return data
         dataArray = None
-        with io.BytesIO() as data:
-            rawData = sock.recv(SH.REQUESTSIZE)
-            dataSize = SH.unpadBytes(rawData)
-            blockSize = 2048 
-            
-            print("RBexpectedSize")
-            print(dataSize)
-
-            #TODO: MAKE THIS FUCKING THING READ THE RIGHT NUMBER OF BYTES
-            while(data.tell() <= dataSize):
-                data.write(sock.recv(blockSize))
-
-            data.seek(0)
-            dataArray = data.read()
-            print("RBfinalreceivedSIZE")
-            print(sys.getsizeof(dataArray))
-        return dataArray 
+        rawData = recvall(sock, SH.REQUESTSIZE)
+        dataSize = SH.unpadBytes(rawData)
+        dataArray = recvall(sock, dataSize)
+        return dataArray
 
     def connectToServers(self):
         for i, port in enumerate(self.PORTS):

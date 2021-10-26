@@ -1,7 +1,7 @@
 import sys
 
 class SH:
-    REQUESTSIZE = 64 
+    REQUESTSIZE = 16 
     ENCODETYPE = "utf-8"
     PADCHAR = '\x00'
     #CLIENTIP = "172.19.180.254"
