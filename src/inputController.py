@@ -61,6 +61,7 @@ class KeyEvent:
         self.print()
 
     def setModifierState(self, setVar):
+        print(self.modifierState)
         self.modifierState = int(setVar)
 
     def clear(self):
@@ -80,9 +81,7 @@ class KeyEvent:
         return self.key == check
 
     def checkModifier(self, check):
-        if check.isdigit() != True:
-            return False
-        return int(check) in self.modifiers
+        return check in self.modifiers
 
     def print(self):
         print("{0}: {1}".format(self.key, self.is_set()))

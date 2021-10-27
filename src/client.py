@@ -15,12 +15,10 @@ import photo
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-    KILLSCRIPT = False
-    PRINTREMOTE = False 
+    KILLSCRIPT = True 
+    PRINTREMOTE = True 
 
     def __init__(self):
-        # Start the scripts running on the PI zeros
-
         self.ADDRESS = "172.19.181.254"
         self.PORTS = ("5555", "5556", "5557", "5558")
         self.PREVIEWPORTS = ("5559", "5560", "5561", "5562")
@@ -28,7 +26,6 @@ class Client:
         self.ssh = []
         self.sockets = []
         self.debugThreads = []
-        self.startServers()
 
         self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
         self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
@@ -41,6 +38,7 @@ class Client:
         self.inputControl.startChecking()
 
         # Start the scripts running on the PI zeros
+        self.startServers()
         self.connectToServers()
 
         #Start worker thread running
@@ -82,13 +80,13 @@ class Client:
 
     def requestPhotos(self):
         def _receivephoto(self, sock, photoList):
-            photoList.append(self.recieveBytes(sock))
+            photoList.append(self.receiveBytes(sock))
         time.sleep(2)
         self.sendRequestToAllServers("phot")
         threads = []
         photoList = []
         for sock in self.sockets:
-            writeThread = threading.Thread(target = _receivephoto, args=(sock,photoList))
+            writeThread = threading.Thread(target = _receivephoto, args=(self, sock, photoList))
             writeThread.start()
             threads.append(writeThread)
         for thred in threads:
@@ -125,7 +123,6 @@ class Client:
                     raise KeyboardInterrupt
                 except:
                     print(f"waiting for connection on {i + 1}. Trying again....")
-                    print(self.ssh[i])
                     time.sleep(1)
             self.sockets.append(sock)
 
@@ -152,19 +149,16 @@ class Client:
             print(f"server: {ssh} has been terminated")
         
     def sendCommandToAllServers(self, command, printOutputAsync = False):
-        print("SENDING COMMAND")
+        print(f"SENDING COMMAND TO ALL: {command}")
         for ssh in self.ssh:
-            print(f"COMMAND: {command}: {ssh}")
             stdin, stdout, stderr = ssh.exec_command(command)# get_pty=True)
             if printOutputAsync:
-                print("printing")
                 printThread = threading.Thread(target = self._printSSHCommand, args = [stdout], daemon = True)
                 printThread.start()
                 self.debugThreads.append(printThread)
 
     #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
     def _printSSHCommand(self, stdout):
-        print(f"started printing {stdout}")
         while(stdout.closed != True):
             print("        REMOTE:" + stdout.readline())
 

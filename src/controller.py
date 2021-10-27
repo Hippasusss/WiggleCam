@@ -1,5 +1,7 @@
 import client 
 import time
+import warnings
+warnings.filterwarnings("ignore")
 
 clientR = client.Client()
 

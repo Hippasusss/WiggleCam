@@ -1,12 +1,14 @@
 import sys
+import socket
 
 class SH:
-    REQUESTSIZE = 16 
+    REQUESTSIZE = 28 
     ENCODETYPE = "utf-8"
     PADCHAR = '\x00'
     #CLIENTIP = "172.19.180.254"
     PHOTOREQUEST = 1
     PREVIEWREQUEST = 2
+    PINUM = socket.gethostname()[-1:]
     def padBytes(inputb):
         data = None 
         typedata = None
@@ -19,12 +21,14 @@ class SH:
         if isinstance(inputb, int):
             data = inputb.to_bytes(sys.getsizeof(data), 'little')
             typedata = 'i'
-        return data + bytes((SH.REQUESTSIZE - 1) - len(data)) + bytes(typedata, SH.ENCODETYPE)
+        return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(SH.PINUM, SH.ENCODETYPE) + bytes(typedata, SH.ENCODETYPE)
 
     def unpadBytes(inputb):
         inputData = bytearray(inputb)
-        typedata = str(inputData[-1:], SH.ENCODETYPE)
-        del inputData[-1:]
+        typedata = chr(inputData[-1])
+        piNum = chr(inputData[-2])
+        del inputData[-2:]
+
         data = None
         if typedata == 's':
             data = str(inputData, SH.ENCODETYPE).strip(SH.PADCHAR)
