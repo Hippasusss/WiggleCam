@@ -7,7 +7,7 @@
     - name: Update/Upgrade 
       apt: 
         update_cache: yes
-        upgrade: 'yes'
+        upgrade: yes
         force_apt_get: yes
         force: yes
 
@@ -33,11 +33,10 @@
         state: present
         update_cache: true
 
-    - name: Install vidgear, picam and opencv-python
+    - name: Install picam and opencv-python
       pip: 
         name:
             - getkey
-            - vidgear 
             - opencv-python 
             - picamera 
             - imutils
