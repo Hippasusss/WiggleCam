@@ -17,15 +17,16 @@ class Server:
 
         print(f"starting worker thread: {self.PORT}")
         PhotoServer.allow_reuse_address = True
-        with PhotoServer(('', int(self.PORT)), PhotoEventHandler, self.ADDRESS, self.PORT) as server:
+        with PhotoServer(('', int(self.PORT)), PhotoEventHandler) as server:
             print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT:{self.PORT}")
             server.serve_forever()
 
 class PhotoServer(socketserver.ThreadingTCPServer):
+    def __init__(self, address, handler ):
+        self.camera = photo.Photo()
+        self.photoEvent = threading.Event()
+        self.isPreviewing = False
 
-    def __init__(self, address, handler, host, port):
-        self.HOST = host
-        self.PORT = port 
         self.allow_reuse_address = True
         socketserver.ThreadingTCPServer.allow_reuse_address = True
         socketserver.ThreadingTCPServer.__init__(self, address, handler)
@@ -35,37 +36,24 @@ class PhotoServer(socketserver.ThreadingTCPServer):
         self.handle_request()
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
-    camera = photo.Photo()
     def handle(self):
-        # Take Photo and format data
         request = SH.unpadBytes(self.request.recv(SH.REQUESTSIZE))
-
         if request == "prev":
-            while (True): #untill photo request
-                frameData = self.camera.getPreviewData()
-                self.sendBytes(frameData)
-
-        if request == "phot":
-            photoData = self.camera.takePhoto()
-            self.sendBytes(photoData)
-        
-        else:
-            print("Incorrect Request")
-            self.request.sendall(SH.padBytes("incorrect"))
-            
-        print("Request Handled")
+            self.server.isPreviewing = not self.server.isPreviewing
+            while (self.server.isPreviewing):
+                while (self.server.photoEvent.is_Set() == False): #untill photo request
+                    frameData = self.server.camera.getPreviewData()
+                    self.sendBytes(frameData)
+                self.sendBytes(self.server.camera.takePhoto())
+                self.server.photoEvent.clear()
+        elif request == "phot":
+            if(self.server.isPreviewing)
+                self.server.photoEvent.set()
+            else:
+                photoData = self.server.camera.takePhoto()
+                self.sendBytes(photoData)
 
     def sendBytes(self, data):
         dataSize = len(data)
         self.request.sendall(SH.padBytes(dataSize))
         self.request.sendall(data)
-'''
-    def sendBytes(self, datai):
-        with io.BytesIO() as data:
-            data.write(datai)
-            data.seek(0)
-            dataSize = int(data.getbuffer().nbytes)
-            self.request.sendall(SH.padBytes(dataSize))
-            block = data.read(dataSize)
-            self.request.sendall(block)
-'''

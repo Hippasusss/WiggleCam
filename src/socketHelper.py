@@ -21,12 +21,12 @@ class SH:
         if isinstance(inputb, int):
             data = inputb.to_bytes(sys.getsizeof(data), 'little')
             typedata = 'i'
-        return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(SH.PINUM, SH.ENCODETYPE) + bytes(typedata, SH.ENCODETYPE)
+        return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(chr(SH.PINUM)) + bytes(typedata, SH.ENCODETYPE)
 
     def unpadBytes(inputb):
         inputData = bytearray(inputb)
         typedata = chr(inputData[-1])
-        piNum = chr(inputData[-2])
+        piNum = inputData[-2]
         del inputData[-2:]
 
         data = None

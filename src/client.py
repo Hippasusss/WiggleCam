@@ -39,6 +39,7 @@ class Client:
 
         # Start the scripts running on the PI zeros
         self.startServers()
+        # Create the socket connections to the PI Zeros
         self.connectToServers()
 
         #Start worker thread running
@@ -125,7 +126,6 @@ class Client:
                     print(f"waiting for connection on {i + 1}. Trying again....")
                     time.sleep(1)
             self.sockets.append(sock)
-
 
     def startServers(self):
         command = "python3 -u ~/script/WiggleCam/src/cameraModule.py 2>&1"
