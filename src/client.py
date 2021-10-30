@@ -15,8 +15,8 @@ import photo
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-    KILLSCRIPT = True 
-    PRINTREMOTE = True 
+    KILLSCRIPT =False 
+    PRINTREMOTE = False
 
     def __init__(self):
         self.ADDRESS = "172.19.181.254"
@@ -49,7 +49,7 @@ class Client:
         # Init pygame and screen
         pygame.init()
         pygame.mouse.set_visible(False)
-        self.screen = pygame.display.set_mode((320,240), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((640,480), pygame.RESIZABLE)
 
     def _worker(self):
         print("starting worker thread")
@@ -68,13 +68,14 @@ class Client:
             time.sleep(0.3)
 
     def requestPreview(self):
-        self.sendRequestToAllServers("prev")
+        self.sendRequestToAllServers("preview")
         data = [None]*4
         preRes = photo.Photo.PRERES
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
                data[i] = SH.receiveBytes(sock)
             viewData = data[self.previewEvent.modifierState]
+            print(len(data))
             img = pygame.image.frombuffer(viewData, preRes, 'RGB')
             self.screen.blit(img, (0,0))
             pygame.display.update()
@@ -82,7 +83,7 @@ class Client:
     def requestPhotos(self):
         def _receivephoto(self, sock, photoList):
             photoList.append(SH.receiveBytes(sock))
-        self.sendRequestToAllServers("phot")
+        self.sendRequestToAllServers("photo")
         threads = []
         photoList = []
         for sock in self.sockets:
@@ -118,7 +119,15 @@ class Client:
             self.ssh.append(ssh)
         if self.KILLSCRIPT: 
             self.sendCommandToAllServers("killall -9  python3")
+            time.sleep(0.1)
         self.sendCommandToAllServers(command, self.PRINTREMOTE)
+
+    def closeServers(self):
+        self.sendCommandToAllServers("killall -9  python3")
+        for sock in self.sockets:
+            sock.close()
+        for ssh in self.ssh:
+            ssh.close()
 
     def sendCommandToAllServers(self, command, printOutputAsync = False):
         def _printSSHCommand(stdout):
@@ -135,7 +144,7 @@ class Client:
     def sendRequestToAllServers(self, request):
         print(f"requesting {request}")
         for sock in self.sockets:
-            SH.sendBytes(f{"request}")
+            SH.sendBytes(sock, f"{request}".encode(encoding=SH.ENCODETYPE))
 
 
 

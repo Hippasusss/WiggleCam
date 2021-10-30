@@ -16,7 +16,7 @@ class SH:
             data = bytes(inputb, SH.ENCODETYPE)
             typedata = 's'
         if isinstance(inputb, int):
-            data = inputb.to_bytes((inputb.bit_length()/8)+1, 'little')
+            data = inputb.to_bytes((inputb.bit_length()//8)+1, 'little')
             typedata = 'i'
         return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(SH.PINUM, SH.ENCODETYPE) + bytes(typedata, SH.ENCODETYPE)
 
