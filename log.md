@@ -156,3 +156,9 @@ you've been stressing over in three lines of code. So i've replaced it all with 
 
 Just got the server and client to speak to each other after a day of thrashing around like a buffoon. As ever it
 was really easy in the end. 
+
+### 30.10.2021 
+--------------
+Not updated this log in ages. Removed all the NetGear shite and wrote the preview networking stuff from scratch. 
+
+also ran "rm -rf ~" by accident and just spent the last 3 hours fixing everything. 
