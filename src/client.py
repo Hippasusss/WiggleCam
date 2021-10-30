@@ -104,8 +104,6 @@ class Client:
                     sock.connect((address, int(port)))
                     print(f"connection to {i + 1} successfull")
                     connected = True
-                except KeyboardInterrupt:
-                    raise KeyboardInterrupt
                 except:
                     print(f"waiting for connection on {i + 1}. Trying again....")
                     time.sleep(1)
@@ -113,8 +111,6 @@ class Client:
 
     def startServers(self):
         command = "python3 -u ~/script/WiggleCam/src/cameraModule.py 2>&1"
-        if len(self.ssh) is not 0:
-            return 
         for address in self.SERVERADDRESSES:
             ssh = paramiko.SSHClient()
             ssh.load_system_host_keys()
@@ -124,27 +120,17 @@ class Client:
             self.sendCommandToAllServers("killall -9  python3")
         self.sendCommandToAllServers(command, self.PRINTREMOTE)
 
-    def closeServers(self):
-        self.sendCommandToAllServers("killall -9 python3")
-        for sock in self.sockets:
-            sock.close()
-        for ssh in self.ssh: 
-            ssh.close()
-            print(f"server: {ssh} has been terminated")
-
     def sendCommandToAllServers(self, command, printOutputAsync = False):
+        def _printSSHCommand(stdout):
+            while(stdout.closed != True):
+                print("REMOTE:" + stdout.readline())
         print(f"SENDING COMMAND TO ALL: {command}")
         for ssh in self.ssh:
-            stdin, stdout, stderr = ssh.exec_command(command)# get_pty=True)
+            stdin, stdout, stderr = ssh.exec_command(command)
             if printOutputAsync:
-                printThread = threading.Thread(target = self._printSSHCommand, args = [stdout], daemon = True)
+                printThread = threading.Thread(target = _printSSHCommand, args = [stdout], daemon = True)
                 printThread.start()
                 self.debugThreads.append(printThread)
-
-    #https://stackoverflow.com/questions/25260088/paramiko-with-continuous-stdout
-    def _printSSHCommand(self, stdout):
-        while(stdout.closed != True):
-            print("        REMOTE:" + stdout.readline())
 
     def sendRequestToAllServers(self, request):
         print(f"requesting {request}")

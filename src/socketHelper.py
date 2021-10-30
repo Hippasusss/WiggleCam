@@ -18,12 +18,12 @@ class SH:
         if isinstance(inputb, int):
             data = inputb.to_bytes((inputb.bit_length()/8)+1, 'little')
             typedata = 'i'
-        return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(chr(SH.PINUM)) + bytes(typedata, SH.ENCODETYPE)
+        return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(SH.PINUM, SH.ENCODETYPE) + bytes(typedata, SH.ENCODETYPE)
 
     def unpadBytes(inputb):
         inputData = bytearray(inputb)
         typedata = chr(inputData[-1])
-        piNum = inputData[-2]
+        piNum = int(chr(inputData[-2]))
         del inputData[-2:]
 
         data = None
@@ -34,7 +34,7 @@ class SH:
         if typedata == 'b':
             data = inputData
         return data
-    
+
     def sendBytes(sock, data):
         dataSize = len(data)
         sock.sendall(SH.padBytes(dataSize))
