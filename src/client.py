@@ -73,7 +73,7 @@ class Client:
         preRes = photo.Photo.PRERES
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
-               data[i] = self.receiveBytes(sock)
+               data[i] = SH.receiveBytes(sock)
             viewData = data[self.previewEvent.modifierState]
             img = pygame.image.frombuffer(viewData, preRes, 'RGB')
             self.screen.blit(img, (0,0))
@@ -81,8 +81,7 @@ class Client:
 
     def requestPhotos(self):
         def _receivephoto(self, sock, photoList):
-            photoList.append(self.receiveBytes(sock))
-        time.sleep(2)
+            photoList.append(SH.receiveBytes(sock))
         self.sendRequestToAllServers("phot")
         threads = []
         photoList = []
@@ -94,21 +93,6 @@ class Client:
             thred.join()
         photoList.sort()
         gifStitcher.stitch(photoList, "newGif")
-
-    def receiveBytes(self, sock):
-        def recvall(sock, num):
-            data = bytearray()
-            while len(data) < num:
-                packet = sock.recv(num - len(data))
-                if not packet: 
-                    break
-                data.extend(packet)
-            return data
-        dataArray = None
-        rawData = recvall(sock, SH.REQUESTSIZE)
-        dataSize = SH.unpadBytes(rawData)
-        dataArray = recvall(sock, dataSize)
-        return dataArray
 
     def connectToServers(self):
         for i, port in enumerate(self.PORTS):
@@ -147,7 +131,7 @@ class Client:
         for ssh in self.ssh: 
             ssh.close()
             print(f"server: {ssh} has been terminated")
-        
+
     def sendCommandToAllServers(self, command, printOutputAsync = False):
         print(f"SENDING COMMAND TO ALL: {command}")
         for ssh in self.ssh:
@@ -163,10 +147,9 @@ class Client:
             print("        REMOTE:" + stdout.readline())
 
     def sendRequestToAllServers(self, request):
+        print(f"requesting {request}")
         for sock in self.sockets:
-            name = sock.getsockname()
-            print(f"requesting {request}: {name[0], name[1]}" )
-            sock.sendall(SH.padBytes(f"{request}"))
+            SH.sendBytes(f{"request}")
 
 
 

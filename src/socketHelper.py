@@ -2,15 +2,12 @@ import sys
 import socket
 
 class SH:
-    REQUESTSIZE = 28 
+    REQUESTSIZE = 28
     ENCODETYPE = "utf-8"
     PADCHAR = '\x00'
-    #CLIENTIP = "172.19.180.254"
-    PHOTOREQUEST = 1
-    PREVIEWREQUEST = 2
     PINUM = socket.gethostname()[-1:]
     def padBytes(inputb):
-        data = None 
+        data = None
         typedata = None
         if isinstance(inputb, bytes):
             data = inputb
@@ -19,7 +16,7 @@ class SH:
             data = bytes(inputb, SH.ENCODETYPE)
             typedata = 's'
         if isinstance(inputb, int):
-            data = inputb.to_bytes(sys.getsizeof(data), 'little')
+            data = inputb.to_bytes((inputb.bit_length()/8)+1, 'little')
             typedata = 'i'
         return data + bytes((SH.REQUESTSIZE - 2) - len(data)) + bytes(chr(SH.PINUM)) + bytes(typedata, SH.ENCODETYPE)
 
@@ -37,3 +34,23 @@ class SH:
         if typedata == 'b':
             data = inputData
         return data
+    
+    def sendBytes(sock, data):
+        dataSize = len(data)
+        sock.sendall(SH.padBytes(dataSize))
+        sock.sendall(data)
+
+    def receiveBytes(sock):
+        def recvall(sock, num):
+            data = bytearray()
+            while len(data) < num:
+                packet = sock.recv(num - len(data))
+                if not packet: 
+                    break
+                data.extend(packet)
+            return data
+        dataArray = None
+        rawInfo = recvall(sock, SH.REQUESTSIZE)
+        dataSize = SH.unpadBytes(rawInfo)
+        dataArray = recvall(sock, dataSize)
+        return dataArray

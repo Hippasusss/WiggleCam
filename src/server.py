@@ -14,11 +14,8 @@ class Server:
         self.ADDRESS = socket.gethostname() 
         self.ID = int(self.ADDRESS[-1:])
         self.PORT = str(5554 + self.ID) 
-
-        print(f"starting worker thread: {self.PORT}")
         PhotoServer.allow_reuse_address = True
         with PhotoServer(('', int(self.PORT)), PhotoEventHandler) as server:
-            print(f"Connecting on ADDRESS:{self.ADDRESS}, PORT:{self.PORT}")
             server.serve_forever()
 
 class PhotoServer(socketserver.ThreadingTCPServer):
@@ -37,23 +34,19 @@ class PhotoServer(socketserver.ThreadingTCPServer):
 
 class PhotoEventHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        request = SH.unpadBytes(self.request.recv(SH.REQUESTSIZE))
-        if request == "prev":
+        requestData = SH.receiveBytes(self.request)
+        if requestData == "prev":
             self.server.isPreviewing = not self.server.isPreviewing
             while (self.server.isPreviewing):
                 while (self.server.photoEvent.is_Set() == False): #untill photo request
                     frameData = self.server.camera.getPreviewData()
-                    self.sendBytes(frameData)
+                    SH.sendBytes(sock, frameData)
                 self.sendBytes(self.server.camera.takePhoto())
                 self.server.photoEvent.clear()
-        elif request == "phot":
+        elif requestData == "phot":
             if(self.server.isPreviewing)
                 self.server.photoEvent.set()
             else:
                 photoData = self.server.camera.takePhoto()
-                self.sendBytes(photoData)
+                SH.sendBytes(sock, photoData)
 
-    def sendBytes(self, data):
-        dataSize = len(data)
-        self.request.sendall(SH.padBytes(dataSize))
-        self.request.sendall(data)
