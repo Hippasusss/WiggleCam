@@ -74,8 +74,7 @@ class Client:
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
                data[i] = SH.receiveBytes(sock)
-            viewData = data[self.previewEvent.modifierState]
-            print(len(data))
+            viewData = data[self.previewEvent.modifierState -1]
             img = pygame.image.frombuffer(viewData, preRes, 'RGB')
             self.screen.blit(img, (0,0))
             pygame.display.update()
