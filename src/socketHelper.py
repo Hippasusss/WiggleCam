@@ -37,6 +37,7 @@ class SH:
 
     def sendBytes(sock, data):
         dataSize = len(data)
+        print(dataSize)
         sock.sendall(SH.padBytes(dataSize))
         sock.sendall(data)
 
@@ -52,5 +53,6 @@ class SH:
         dataArray = None
         rawInfo = recvall(sock, SH.REQUESTSIZE)
         dataSize = SH.unpadBytes(rawInfo)
+        print(dataSize)
         dataArray = recvall(sock, dataSize)
         return dataArray

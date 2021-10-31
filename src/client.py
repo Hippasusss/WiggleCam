@@ -1,4 +1,8 @@
+from pathlib import Path
 from getkey import getkey, keys
+from datetime import datetime
+from PIL import Image
+
 import threading
 import time
 import socket
@@ -92,7 +96,9 @@ class Client:
         for thred in threads:
             thred.join()
         photoList.sort()
-        gifStitcher.stitch(photoList, "newGif")
+
+        gifStitcher.savePhotos(photoList)
+        #gifStitcher.stitch(photoList, "newGif")
 
     def connectToServers(self):
         for i, port in enumerate(self.PORTS):
