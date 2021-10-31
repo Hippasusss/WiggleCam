@@ -5,6 +5,6 @@
   tasks: 
   - name: Push code to remotes
     synchronize:
-        src: ~/Develop/WiggleCam/src
+        src: ~/WiggleCam/src
         dest: ~/script/WiggleCam
         delete: yes
