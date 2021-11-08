@@ -97,7 +97,7 @@ class Client:
             thred.join()
         photoList.sort()
 
-        gifStitcher.savePhotos(photoList)
+        photo.savePhotos(photoList)
         #gifStitcher.stitch(photoList, "newGif")
 
     def connectToServers(self):
