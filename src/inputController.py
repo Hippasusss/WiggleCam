@@ -31,7 +31,7 @@ class Input:
                         print("Toggle Off")
                         waitingEvent = None
                     else:
-                        print(f"blocked. waiting for {waitinEvent.key}")
+                        print(f"blocked. waiting for {waitingEvent.key}")
                 elif waitingEvent is not None and waitingEvent.checkModifier(Input):
                     waitingEvent.setModifierState(Input)
                     print(f"Modifier input. setting event {waitingEvent.key} to current state of {Input}")

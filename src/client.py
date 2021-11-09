@@ -1,5 +1,4 @@
 from getkey import getkey, keys
-from datetime import datetime
 
 import threading
 import time
@@ -96,7 +95,6 @@ class Client:
         photoList.sort()
 
         gifStitcher.savePhotos(photoList)
-        #gifStitcher.stitch(photoList, "newGif")
 
     def connectToServers(self):
         for i, port in enumerate(self.PORTS):
