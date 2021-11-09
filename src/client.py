@@ -1,7 +1,5 @@
-from pathlib import Path
 from getkey import getkey, keys
 from datetime import datetime
-from PIL import Image
 
 import threading
 import time
@@ -97,7 +95,7 @@ class Client:
             thred.join()
         photoList.sort()
 
-        photo.savePhotos(photoList)
+        gifStitcher.savePhotos(photoList)
         #gifStitcher.stitch(photoList, "newGif")
 
     def connectToServers(self):

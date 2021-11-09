@@ -2,12 +2,10 @@ import io
 import os
 import sys 
 import picamera
-import imageio
-import PIL
 
 class Photo:
     PRERES = (320,240)
-    PHORES = (4064, 3040)
+    PHORES = (4056, 3040)
 
     def __init__(self):
         self.camera = picamera.PiCamera(sensor_mode = 2)
@@ -44,37 +42,6 @@ class Photo:
         if (mode == "preview"):
             self.camera.resolution = Photo.PRERES
 
-    def savePhotos(listOfPhotos):
-        path = f"{str(Path.home())}/photos"
-        filetype = ".png"
-        now=datetime.now().strftime("%d-%m-%y %H%M%S")
-        for i, photo in enumerate(photoList):
-            filePath = f"{path}/{now}/IMG{i+1} {now}{filetype}"
-            os.makedirs(os.path.dirname(filePath), exist_ok=True)
-            size = len(photo)
-            image = PIL.Image.frombytes('RGB', size, photo)
-            image.save(filepath)
-                #WRITE FILE
-
-    def stitch(listOfPhotos, name):
-        images = []
-        for photo in listOfPhotos:
-            images.append(imageio.imread(photo, as_gray=False, pilmode="RGB"))
-        numPhotos = len(listOfPhotos)
-        numLoops = 5
-        print(f"numPhotos = {numPhotos}")
-        arrangement = []
-        for j in range(numLoops):
-            print(f"loop: {j}")
-            for i in range((numPhotos * 2) - 2):
-                currentPhoto = abs(numPhotos - (i+1))
-                print(f"photo:{currentPhoto}")
-                arrangement.append(images[currentPhoto])
-        writer = imageio.get_writer("test.mp4", fps = 6)
-
-        for im in arrangement:
-            writer.append_data(im)
-        writer.close()
 
 
 

@@ -1,18 +1,19 @@
+from pathlib import Path
 import imageio
 import PIL
-FRAMEDURATION = 0.2
-GIFDURATION = 15
+import os
+from datetime import datetime
 
 def savePhotos(listOfPhotos):
     path = f"{str(Path.home())}/photos"
-    filetype = ".rgb"
+    filetype = ".png"
     now=datetime.now().strftime("%d-%m-%y %H%M%S")
-    for i, photo in enumerate(photoList):
+    for i, photo in enumerate(listOfPhotos):
         filePath = f"{path}/{now}/IMG{i+1} {now}{filetype}"
         os.makedirs(os.path.dirname(filePath), exist_ok=True)
-        image = PIL.Image.frombytes('RGB', size, photo)
-        image.save(filepath)
-            #WRITE FILE
+        size = len(photo)
+        image = PIL.Image.frombytes('RGB', (4064, 3040), bytes(photo))
+        image.save(filePath)
 
 def stitch(listOfPhotos, name):
     images = []
