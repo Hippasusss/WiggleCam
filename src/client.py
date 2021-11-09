@@ -82,17 +82,16 @@ class Client:
 
     def requestPhotos(self):
         def _receivephoto(self, sock, photoList):
-            photoList.append(SH.receiveBytes(sock))
+            photoList[self.sockets.index(sock)] = (SH.receiveBytes(sock))
         self.sendRequestToAllServers("photo")
         threads = []
-        photoList = []
+        photoList = [None] * 4
         for sock in self.sockets:
             writeThread = threading.Thread(target = _receivephoto, args=(self, sock, photoList))
             writeThread.start()
             threads.append(writeThread)
         for thred in threads:
             thred.join()
-        photoList.sort()
 
         gifStitcher.savePhotos(photoList)
 

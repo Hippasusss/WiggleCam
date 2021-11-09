@@ -24,7 +24,6 @@ def savePhotos(listOfPhotos):
     # save images as a wiggle video 
     numPhotos = len(listOfPhotos)
     numLoops = 5
-    print(f"numPhotos = {numPhotos}")
     arrangement = []
     for j in range(numLoops):
         for i in range((numPhotos * 2) - 2):
@@ -34,7 +33,7 @@ def savePhotos(listOfPhotos):
     writer = imageio.get_writer(f"{path}/VID {now}.mp4", fps = 6)
 
     for image in arrangement:
-        writer.append_data(numpy.array(image))
+        writer.append_data(numpy.asarray(image))
     writer.close()
 
 
