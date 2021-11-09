@@ -14,6 +14,7 @@ def savePhotos(listOfPhotos):
         size = len(photo)
         image = PIL.Image.frombytes('RGB', (4064, 3040), bytes(photo))
         image.save(filePath)
+        print(f"saved at: {filePath}")
 
 def stitch(listOfPhotos, name):
     images = []
