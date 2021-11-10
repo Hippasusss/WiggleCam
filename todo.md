@@ -3,9 +3,8 @@
     - [x] wirte images as png to home/photos
         - [x] with the date on them
         - [x] create a folder with date to store each batch of photos
-    - [ ] imageio create video/gif file:
+    - [ ] opencv create video/gif file:
         - [ ] FIX: video saving as black
-        - [x] convert from PIL image to numpy array for image writing
         - [ ] make changing framerate etc easy
     - [ ] FIX: speed up writing image to disk(?)
 
