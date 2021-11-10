@@ -5,6 +5,7 @@
         - [x] create a folder with date to store each batch of photos
     - [ ] opencv create video/gif file:
         - [ ] FIX: video saving as black 
+        - [ ] FIX: opencv libpng IHDR error
         - [ ] make changing framerate etc easy
         - [x] Install opencv way to fucking hard fuck you pip
     - [ ] FIX: speed up writing image to disk(?)

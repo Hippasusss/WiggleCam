@@ -24,7 +24,7 @@ class Photo:
 
     def _getCameraData(self, video=False):
         data = io.BytesIO()
-        self.camera.capture(data, use_video_port=video, format='rgb')
+        self.camera.capture(data, use_video_port=video, format='bgr')
         data.seek(0)
         dataArray = data.read()
         data.close()

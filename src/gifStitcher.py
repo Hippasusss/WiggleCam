@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import datetime
 
 import numpy
-import PIL
 import os
 import cv2
 
@@ -18,10 +17,11 @@ def savePhotos(listOfPhotos):
     for i, photo in enumerate(listOfPhotos):
         filePath = f"{path}/IMG{i+1} {now}{imageType}"
         os.makedirs(os.path.dirname(filePath), exist_ok=True)
-        size = len(photo)
-        image = PIL.Image.frombytes('RGB', imageSize, bytes(photo))
+        numdata = numpy.frombuffer(bytes(photo), dtype=numpy.uint8)
+        numdata.shape = (imageSize[0], imageSize[1], 3)
+        image = cv2.imencode('.png', numdata)[1]
         images.append(image)
-        image.save(filePath)
+        cv2.imwrite(filePath, image)
         print(f"saved at: {filePath}")
 
     ## save images as a wiggle video 
@@ -29,12 +29,12 @@ def savePhotos(listOfPhotos):
     numLoops = 5
     arrangement = []
     # save the order of the images into an array
-    codec = cv2.cv.CV_FOURCC(*'H264')
+    codec = cv2.VideoWriter_fourcc(*'H264')
     video = cv2.VideoWriter(f"{path}/VID {now}{videoType}", codec, 6, imageSize)
     for j in range(numLoops):
         for i in range((numPhotos * 2) - 2):
             currentPhotoIndex = abs(numPhotos - (i+1))
-            video.write(numpy.frombytes((images[currentPhotoIndex])))
+            video.write(images[currentPhotoIndex])
     video.release()
 
 
