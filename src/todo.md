@@ -4,15 +4,14 @@
         - [x] with the date on them
         - [x] create a folder with date to store each batch of photos
     - [ ] opencv create video/gif file:
-        - [ ] FIX: video saving as black 
+        - [ ] FIX: video saving as black
         - [ ] make changing framerate etc easy
-        - [x] Install opencv way to fucking hard fuck you pip
     - [ ] FIX: speed up writing image to disk(?)
-        - [ ] only about 30mb * 4 needs to be written. Thread it. 
 
 #COMMUNICATION 
     - [ ] Sending data to servers to change parameters of cameras 
         - [ ] might need confirmation to be sent back
+    - [ ] 
 
 #HARDWARE
     - [ ] Design camera array holder
