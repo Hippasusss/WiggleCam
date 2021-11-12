@@ -1,6 +1,6 @@
 
 # IMAGE WRITING
-    - [x] wirte images as png to home/photos
+- [x] wirte images as png to home/photos
         - [x] with the date on them
         - [x] create a folder with date to store each batch of photos
     - [ ] opencv create video/gif file:
