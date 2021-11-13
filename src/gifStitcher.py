@@ -6,7 +6,7 @@ import os
 import cv2
 
 def savePhotos(listOfPhotos):
-    imageType = ".png"
+    imageType = ".jpg"
     videoType = ".mp4"
     now = datetime.now().strftime("%d-%m-%y %H%M%S")
     path = f"{str(Path.home())}/photos/{now}"
@@ -18,10 +18,9 @@ def savePhotos(listOfPhotos):
         filePath = f"{path}/IMG{i+1} {now}{imageType}"
         os.makedirs(os.path.dirname(filePath), exist_ok=True)
         numdata = numpy.frombuffer(bytes(photo), dtype=numpy.uint8)
-        numdata.shape = (imageSize[0], imageSize[1], 3)
-        image = cv2.imencode('.png', numdata)[1]
-        images.append(image)
-        cv2.imwrite(filePath, image)
+        numdata.shape = (imageSize[1], imageSize[0], 3)
+        images.append(numdata)
+        cv2.imwrite(filePath, numdata)
         print(f"saved at: {filePath}")
 
     ## save images as a wiggle video 
