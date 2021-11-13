@@ -21,18 +21,18 @@ def savePhotos(listOfPhotos):
         numdata.shape = (imageSize[1], imageSize[0], 3)
         images.append(numdata)
         cv2.imwrite(filePath, numdata)
-        print(f"saved at: {filePath}")
+        print(f"photo saved at: {filePath}")
 
     ## save images as a wiggle video 
     numPhotos = len(listOfPhotos)
     numLoops = 5
+    videoPath = f"{path}/VID {now}{videoType}"
     arrangement = []
-    # save the order of the images into an array
-    codec = cv2.VideoWriter_fourcc(*'H264')
-    video = cv2.VideoWriter(f"{path}/VID {now}{videoType}", codec, 6, imageSize)
+    codec = cv2.VideoWriter_fourcc(*'mp4v')
+    video = cv2.VideoWriter(videoPath, codec, 6, imageSize)
     for j in range(numLoops):
         for i in range((numPhotos * 2) - 2):
             currentPhotoIndex = abs(numPhotos - (i+1))
             video.write(images[currentPhotoIndex])
     video.release()
-
+    print(f"video saved at: {videoPath}")

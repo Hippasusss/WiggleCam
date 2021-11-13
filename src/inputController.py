@@ -4,7 +4,6 @@ import time
 
 # reveive input from camera and send to other threads to perform tasks
 class Input:
-
     events = []
 
     def startChecking(self):
