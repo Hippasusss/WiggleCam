@@ -3,15 +3,14 @@
 - [x] wirte images as png to home/photos
   - [x] with the date on them
   - [x] create a folder with date to store each batch of photos
-- [ ] opencv create video/gif file:
+- [x] opencv create video/gif file:
   - [x] Save images
     - [x] FIX: opencv libpng IHDR error
-  - [ ] Save video 
-    - [ ] FIX: saves file but no data.
-    - [ ] FIX: no h.264 codec
-  - [ ] make changing framerate etc easy
+  - [x] Save video 
+    - [x] FIX: saves file but no data.
+    - [x] FIX: no h.264 codec
 - [x] Install opencv way to fucking hard fuck you pip
-  - [ ] FIX: speed up writing image to disk(?)
+  - [x] FIX: speed up writing image to disk(?)
   - [ ] only about 30mb * 4 needs to be written. Thread it. 
 
 # COMMUNICATION 
