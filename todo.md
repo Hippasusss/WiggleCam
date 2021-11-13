@@ -18,6 +18,9 @@
 - [ ] Sending data to servers to change parameters of cameras 
   - [ ] might need confirmation to be sent back
 - [ ] enusre timings between camera captures is sub 5ms ish
+- [ ] make the preview more efficient 
+  - [x] get rid of pygame and use opencv
+  - [ ] only stream the data from the currently previewing camera 
 
 # HARDWARE
 - [ ] Design camera array holder
