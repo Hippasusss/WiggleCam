@@ -4,8 +4,11 @@
   - [x] with the date on them
   - [x] create a folder with date to store each batch of photos
 - [ ] opencv create video/gif file:
-  - [ ] FIX: video saving as black 
-  - [ ] FIX: opencv libpng IHDR error
+  - [x] Save images
+    - [x] FIX: opencv libpng IHDR error
+  - [ ] Save video 
+    - [ ] FIX: saves file but no data.
+    - [ ] FIX: no h.264 codec
   - [ ] make changing framerate etc easy
 - [x] Install opencv way to fucking hard fuck you pip
   - [ ] FIX: speed up writing image to disk(?)
@@ -14,6 +17,7 @@
 # COMMUNICATION 
 - [ ] Sending data to servers to change parameters of cameras 
   - [ ] might need confirmation to be sent back
+- [ ] enusre timings between camera captures is sub 5ms ish
 
 # HARDWARE
 - [ ] Design camera array holder
