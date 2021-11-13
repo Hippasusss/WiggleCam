@@ -7,7 +7,8 @@ import sys
 import paramiko
 import os
 import io 
-import pygame
+import cv2
+import numpy 
 
 from socketHelper import SH
 import inputController
@@ -47,11 +48,6 @@ class Client:
         workerThread = threading.Thread(target = self._worker, daemon = True)
         workerThread.start()
 
-        # Init pygame and screen
-        pygame.init()
-        pygame.mouse.set_visible(False)
-        self.screen = pygame.display.set_mode((640,480), pygame.RESIZABLE)
-
     def _worker(self):
         print("starting worker thread")
         while True:
@@ -72,13 +68,16 @@ class Client:
         self.sendRequestToAllServers("preview")
         data = [None]*4
         preRes = photo.Photo.PRERES
+        cv2.startWindowThread()
+        cv2.namedWindow("preview")
         while(self.previewEvent.is_set()):
             for i, sock in enumerate(self.sockets):
                data[i] = SH.receiveBytes(sock)
             viewData = data[self.previewEvent.modifierState -1]
-            img = pygame.image.frombuffer(viewData, preRes, 'RGB')
-            self.screen.blit(img, (0,0))
-            pygame.display.update()
+            numdata = numpy.frombuffer(bytes(viewData), dtype=numpy.uint8)
+            numdata.shape = (preRes[1], preRes[0], 3)
+            cv2.imshow('preview', numdata)
+        cv2.destroyAllWindows()
 
     def requestPhotos(self):
         def _receivephoto(self, sock, photoList):
