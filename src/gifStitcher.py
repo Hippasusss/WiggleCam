@@ -6,7 +6,7 @@ import os
 import cv2
 
 def savePhotos(listOfPhotos):
-    imageType = ".jpg"
+    imageType = ".png"
     videoType = ".mp4"
     now = datetime.now().strftime("%d-%m-%y %H%M%S")
     path = f"{str(Path.home())}/photos/{now}"
