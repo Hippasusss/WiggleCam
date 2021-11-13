@@ -17,7 +17,7 @@ import photo
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-    KILLSCRIPT =False 
+    KILLSCRIPT = False 
     PRINTREMOTE = False
 
     def __init__(self):
