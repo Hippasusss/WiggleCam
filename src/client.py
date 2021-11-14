@@ -16,98 +16,93 @@ import gifStitcher
 import photo
 
 class Client:
-    SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-    KILLSCRIPT = False 
+    KILLSCRIPT = True 
     PRINTREMOTE = False
 
     def __init__(self):
         self.ADDRESS = "172.19.181.254"
-        self.PORTS = ("5555", "5556", "5557", "5558")
+        self.SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
+        self.PHOTOPORTS = ("5555", "5556", "5557", "5558")
         self.PREVIEWPORTS = ("5559", "5560", "5561", "5562")
-        self.inputControl = inputController.Input()
-        self.ssh = []
-        self.sockets = []
-        self.debugThreads = []
 
-        self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
-        self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
-        self.photoEvent   = inputController.KeyEvent('p')
+        self.photosockets = []
+        self.previewsockets = []
+        self.ssh = []
+        self.debugThreads = []
+        self.previewThread = None
 
         # Register input events and start input thread running
+        self.inputControl = inputController.Input()
+        self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
+        self.photoEvent   = inputController.KeyEvent('p')
         self.inputControl.addEvent(self.previewEvent)
         self.inputControl.addEvent(self.photoEvent)
-        self.inputControl.addEvent(self.reviewEvent)
         self.inputControl.startChecking()
 
         # Start the scripts running on the PI zeros
         self.startServers()
-        # Create the socket connections to the PI Zeros
-        self.connectToServers()
 
         #Start worker thread running
-        workerThread = threading.Thread(target = self._worker, daemon = True)
-        workerThread.start()
+        threading.Thread(target = self._worker, daemon = True).start()
+
 
     def _worker(self):
         print("starting worker thread")
         while True:
-            if (self.previewEvent.is_set()): #a
+            if (self.previewEvent.has_changed()): #a
                 self.previewEvent.print()
                 self.requestPreview()
-                self.inputControl.clearAllEvents()
             if (self.photoEvent.is_set()): #p
                 self.photoEvent.print()
                 self.requestPhotos()
-                self.inputControl.clearAllEvents()
-            if (self.reviewEvent.is_set()): #r
-                self.reviewEvent.print()
-                self.inputControl.clearAllEvents()
+                self.photoEvent.clear()
             time.sleep(0.3)
 
     def requestPreview(self):
-        self.sendRequestToAllServers("preview")
-        data = [None]*4
-        preRes = photo.Photo.PRERES
-        cv2.startWindowThread()
-        cv2.namedWindow("preview")
-        while(self.previewEvent.is_set()):
-            for i, sock in enumerate(self.sockets):
-               data[i] = SH.receiveBytes(sock)
-            viewData = data[self.previewEvent.modifierState -1]
-            numdata = numpy.frombuffer(bytes(viewData), dtype=numpy.uint8)
-            numdata.shape = (preRes[1], preRes[0], 3)
-            cv2.imshow('preview', numdata)
-        cv2.destroyAllWindows()
+        def _requestPreview(self):
+            for sock in self.previewsockets:
+                SH.sendBytes(sock, "preview".encode(encoding=SH.ENCODETYPE))
+            data = [None]*4
+            preRes = photo.Photo.PRERES
+            cv2.startWindowThread()
+            cv2.namedWindow("preview")
+            while(self.previewEvent.is_set()):
+                for i, sock in enumerate(self.previewsockets):
+                   data[i] = SH.receiveBytes(sock)
+                viewData = data[self.previewEvent.modifierState -1]
+                numdata = numpy.frombuffer(bytes(viewData), dtype=numpy.uint8)
+                numdata.shape = (preRes[1], preRes[0], 3)
+                cv2.imshow('preview', numdata)
+            cv2.destroyAllWindows()
+        if self.previewThread is None:
+            self.previewThread = threading.Thread(target=_requestPreview, args=[self])
+            self.previewThread.start()
+        else:
+            self.previewEvent.clear()
+            self.previewThread.join()
+            self.previewThread = None
 
     def requestPhotos(self):
-        def _receivephoto(self, sock, photoList):
-            photoList[self.sockets.index(sock)] = (SH.receiveBytes(sock))
-        self.sendRequestToAllServers("photo")
-        threads = []
-        photoList = [None] * 4
-        for sock in self.sockets:
-            writeThread = threading.Thread(target = _receivephoto, args=(self, sock, photoList))
-            writeThread.start()
-            threads.append(writeThread)
-        for thred in threads:
-            thred.join()
+        def _requestPhotos(self):
+            def _receivephoto(self, sock, photoList):
+                photoList[self.photosockets.index(sock)] = (SH.receiveBytes(sock))
 
-        gifStitcher.savePhotos(photoList)
-
-    def connectToServers(self):
-        for i, port in enumerate(self.PORTS):
-            address = self.SERVERADDRESSES[i]
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            connected = False
-            while not connected:
-                try:
-                    sock.connect((address, int(port)))
-                    print(f"connection to {i + 1} successfull")
-                    connected = True
-                except:
-                    print(f"waiting for connection on {i + 1}. Trying again....")
-                    time.sleep(1)
-            self.sockets.append(sock)
+            print("requesting photos...")
+            for sock in self.photosockets:
+                SH.sendBytes(sock, "photo".encode(encoding=SH.ENCODETYPE))
+            threads = []
+            photoList = [None] * 4
+            print("photos")
+            for sock in self.photosockets:
+                writeThread = threading.Thread(target = _receivephoto, args=(self, sock, photoList))
+                writeThread.start()
+                threads.append(writeThread)
+            for thred in threads:
+                thred.join()
+            print("photos received")
+            print("saving photos....")
+            gifStitcher.savePhotos(photoList)
+        threading.Thread(target = _requestPhotos, args=[self], daemon = True).start()
 
     def startServers(self):
         command = "python3 -u ~/script/WiggleCam/src/cameraModule.py 2>&1"
@@ -118,12 +113,31 @@ class Client:
             self.ssh.append(ssh)
         if self.KILLSCRIPT: 
             self.sendCommandToAllServers("killall -9  python3")
-            time.sleep(0.1)
+            time.sleep(1)
         self.sendCommandToAllServers(command, self.PRINTREMOTE)
+        def _connect (addresses, ports, socketList):
+            for i, port in enumerate(ports):
+                address = self.SERVERADDRESSES[i]
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                connected = False
+                while not connected:
+                    try:
+                        sock.connect((address, int(port)))
+                        print(f"connection to {i + 1} successfull")
+                        connected = True
+                    except:
+                        print(f"waiting for connection on {i + 1}. Trying again....")
+                        time.sleep(1)
+                socketList.append(sock)
+
+        _connect(self.SERVERADDRESSES, self.PHOTOPORTS, self.photosockets)
+        _connect(self.SERVERADDRESSES, self.PREVIEWPORTS, self.previewsockets)
 
     def closeServers(self):
         self.sendCommandToAllServers("killall -9  python3")
-        for sock in self.sockets:
+        for sock in self.previewsockets:
+            sock.close()
+        for sock in self.photosockets:
             sock.close()
         for ssh in self.ssh:
             ssh.close()
@@ -142,8 +156,6 @@ class Client:
 
     def sendRequestToAllServers(self, request):
         print(f"requesting {request}")
-        for sock in self.sockets:
-            SH.sendBytes(sock, f"{request}".encode(encoding=SH.ENCODETYPE))
 
 
 

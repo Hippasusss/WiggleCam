@@ -7,10 +7,6 @@ import os
 import cv2
 
 def savePhotos(listOfPhotos):
-    photoThread = threading.Thread(target = _savePhotos, args=[listOfPhotos])
-    photoThread.start()
-
-def _savePhotos(listOfPhotos):
     imageType = ".png"
     videoType = ".mp4"
     now = datetime.now().strftime("%d-%m-%y %H%M%S")
@@ -48,3 +44,4 @@ def _savePhotos(listOfPhotos):
             video.write(images[currentPhotoIndex])
     video.release()
     print(f"video saved at: {videoPath}")
+

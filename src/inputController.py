@@ -19,7 +19,7 @@ class Input:
             print(f"keyInput: {Input}")
             for event in self.events: 
                 if event.check(Input):
-                    if waitingEvent is None:
+                    if waitingEvent is None or event.isToggle == False:
                         print(f"setting: {event.key} from input {Input}")
                         event.set()
                         if event.isToggle: 
@@ -53,9 +53,11 @@ class KeyEvent:
         self.modifiers = modifiers
         self.modifierState = 1
         self.clear()
+        self.previousSetting = False
 
     def set(self):
         if not self.event.is_set():
+            self.previousSetting = False
             self.event.set()
         self.print()
 
@@ -65,6 +67,7 @@ class KeyEvent:
 
     def clear(self):
         if self.event.is_set():
+            self.previousSetting = True
             self.event.clear()
 
     def toggle(self):
@@ -73,6 +76,11 @@ class KeyEvent:
         elif self.event.is_set():
             self.event.clear()
 
+    def has_changed(self):
+        if self.previousSetting != self.is_set():
+            self.previousSetting = self.is_set()
+            return True
+    
     def is_set(self):
         return self.event.is_set()
 

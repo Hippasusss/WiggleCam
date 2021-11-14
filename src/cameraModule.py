@@ -4,7 +4,7 @@ import time
 print("serverStarting")
 serverR = server.Server()
 
-while True:
-    time.sleep(1)
+serverR.photoThread.join()
+serverR.previewThread.join()
 
 
