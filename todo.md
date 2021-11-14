@@ -12,6 +12,7 @@
 - [x] Install opencv way to fucking hard fuck you pip
   - [x] FIX: speed up writing image to disk(?)
   - [ ] only about 30mb * 4 needs to be written. Thread it. 
+- [ ] Allow writing while previewing
 
 # COMMUNICATION 
 - [ ] Sending data to servers to change parameters of cameras 
