@@ -1,6 +1,5 @@
 from getkey import getkey, keys
 import threading
-import time
 
 # reveive input from camera and send to other threads to perform tasks
 class Input:
@@ -14,15 +13,15 @@ class Input:
         print("starting input thread")
         waitingEvent = None
         while (True):
-            Input = getkey() 
+            Input = getkey()
             print("input =============================================")
             print(f"keyInput: {Input}")
-            for event in self.events: 
+            for event in self.events:
                 if event.check(Input):
                     if waitingEvent is None:
                         print(f"setting: {event.key} from input {Input}")
                         event.set()
-                        if event.isToggle: 
+                        if event.isToggle:
                             print("Toggle On")
                             waitingEvent = event
                     elif event is waitingEvent:
@@ -46,7 +45,8 @@ class Input:
 
 class KeyEvent:
 
-    def __init__(self, keyCode, isToggle = False, modifiers = []):
+    def __init__(self, keyCode, callback, isToggle = False, modifiers = [] ):
+        self.callback = callback
         self.key = keyCode
         self.isToggle = isToggle
         self.event = threading.Event()
@@ -56,6 +56,7 @@ class KeyEvent:
 
     def set(self):
         if not self.event.is_set():
+            self.callback()
             self.event.set()
         self.print()
 

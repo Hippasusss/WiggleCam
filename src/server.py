@@ -10,7 +10,7 @@ from socketHelper import SH
 
 class Server:
     def __init__(self):
-        self.ADDRESS = socket.gethostname() 
+        self.ADDRESS = socket.gethostname()
         self.PORT = str(5554 + int(self.ADDRESS[-1:]))
         PhotoServer.allow_reuse_address = True
         with PhotoServer(('', int(self.PORT)), PhotoEventHandler) as server:

@@ -1,43 +1,28 @@
-from getkey import getkey, keys
 
 import threading
 import time
 import socket
-import sys 
 import paramiko
-import os
-import io 
 import cv2
-import numpy 
+import numpy
 
 from socketHelper import SH
-import inputController
 import gifStitcher
 import photo
 
 class Client:
     SERVERADDRESSES = [ "172.19.181.1", "172.19.181.2", "172.19.181.3", "172.19.181.4" ]
-    KILLSCRIPT = False 
+    KILLSCRIPT = False
     PRINTREMOTE = False
 
     def __init__(self):
         self.ADDRESS = "172.19.181.254"
         self.PORTS = ("5555", "5556", "5557", "5558")
         self.PREVIEWPORTS = ("5559", "5560", "5561", "5562")
-        self.inputControl = inputController.Input()
         self.ssh = []
         self.sockets = []
         self.debugThreads = []
 
-        self.previewEvent = inputController.KeyEvent('a', isToggle = True, modifiers = ["1", "2", "3", "4", "5"])
-        self.reviewEvent  = inputController.KeyEvent('r', isToggle = True)
-        self.photoEvent   = inputController.KeyEvent('p')
-
-        # Register input events and start input thread running
-        self.inputControl.addEvent(self.previewEvent)
-        self.inputControl.addEvent(self.photoEvent)
-        self.inputControl.addEvent(self.reviewEvent)
-        self.inputControl.startChecking()
 
         # Start the scripts running on the PI zeros
         self.startServers()
@@ -51,22 +36,11 @@ class Client:
     def _worker(self):
         print("starting worker thread")
         while True:
-            if (self.previewEvent.is_set()): #a
-                self.previewEvent.print()
-                self.requestPreview()
-                self.inputControl.clearAllEvents()
-            if (self.photoEvent.is_set()): #p
-                self.photoEvent.print()
-                self.requestPhotos()
-                self.inputControl.clearAllEvents()
-            if (self.reviewEvent.is_set()): #r
-                self.reviewEvent.print()
-                self.inputControl.clearAllEvents()
             time.sleep(0.3)
 
     def requestPreview(self):
         self.sendRequestToAllServers("preview")
-        data = [None]*4
+        data = []*4
         preRes = photo.Photo.PRERES
         cv2.startWindowThread()
         cv2.namedWindow("preview")
@@ -116,7 +90,7 @@ class Client:
             ssh.load_system_host_keys()
             ssh.connect(hostname = address)
             self.ssh.append(ssh)
-        if self.KILLSCRIPT: 
+        if self.KILLSCRIPT:
             self.sendCommandToAllServers("killall -9  python3")
             time.sleep(0.1)
         self.sendCommandToAllServers(command, self.PRINTREMOTE)
