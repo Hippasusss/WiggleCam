@@ -1,6 +1,5 @@
 import io
-import os
-import sys 
+import sys
 import picamera
 
 class Photo:
@@ -16,8 +15,8 @@ class Photo:
         self.setSettings("photo")
         data = self._getCameraData()
         self.setSettings("preview")
-        return data 
-    
+        return data
+
     def getPreviewData(self):
         data = self._getCameraData(True)
         return data

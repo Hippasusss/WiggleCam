@@ -39,7 +39,6 @@ def _savePhotos(listOfPhotos):
     numPhotos = len(listOfPhotos)
     numLoops = 5
     videoPath = f"{path}/VID {now}{videoType}"
-    arrangement = []
     codec = cv2.VideoWriter_fourcc(*'mp4v')
     video = cv2.VideoWriter(videoPath, codec, 6, (images[0].shape[1], images[0].shape[0]))
     for j in range(numLoops):
